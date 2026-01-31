@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide Dashboard - Jharkhand Tourism</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Dashboard scrollbar style */
+        .dashboard-container::-webkit-scrollbar {
+            display: none;
+        }
+        .dashboard-container {
+            -ms-overflow-style: none; /* IE and Edge */
+            scrollbar-width: none; /* Firefox */
+        }
+        /* Style for the map container (placeholder for interactive map) */
+        #jharkhand-map1 {
+            width: 60%;
+            height: 400px;
+            /* === MODIFIED CODE: Added background image properties === */
+            background-image: url('https://www.google.com/maps/vt/data=MjOGxjZBN1UvNkKNlj5HGeRQkO1pe3e4LAx9fk_t2bS2R7zTQdbWsrWwYR4WUsAf-rXT67TXSlVb10OTNdkH8ZUlouimA1Qaf_oOHSITkauJJ96Guy1PtgBKc1dFYCV6nQzAmIoKCskJdU9cmGqGA3odMul7s-7uvrPgH1l8UljLmAly6CM4zW5198ha-IQ3SGBWNLFLeft2_MjSsMMLo98998sQrj6fauY1UsQMlHodDU0xFnUVnOU30My3K4XxpOIv91kg417E2k5JPqezJuEgDVzWCCqRRvr8Q2fjTw9yye8E');
+            background-size: cover; /* Ensures the image covers the whole area */
+            background-position: center; /* Centers the image */
+            background-repeat: no-repeat; /* Prevents image tiling */
+            border: 2px solid #d1d5db; /* Changed from dashed border to solid for better visual with image */
+            /* === END MODIFIED CODE === */
+            position: relative;
+            cursor: crosshair;
+            margin-left: 20%;
+        }
+        #jharkhand-map{
+            width: 100%;
+            height: 400px;
+        }
+        .location-marker {
+            position: absolute;
+            transform: translate(-50%, -100%);
+            color: #ef4444; /* red-500 */
+            font-size: 1.5rem;
+            text-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+        /* Utility for active button in dashboard */
+        .ring-teal-500 {
+             --tw-ring-color: #14b8a6;
+             --tw-ring-opacity: 0.5;
+        }
+        /* --- NEW CSS: Profile Photo Styling --- */
+        .profile-photo-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #14b8a6; /* teal-500 */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+        }
+        /* --- END NEW CSS --- */
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold text-teal-600">Jharkhand Tourism</a>
+            <div id="auth-buttons" class="flex items-center space-x-3">
+                <button id="profile-btn" title="Profile Settings" class="bg-blue-500 text-white p-3 rounded-full hover:bg-blue-600 transition duration-300 shadow-md">
+                    <i class="fas fa-user-cog"></i>
+                </button>
+                <button id="logout-btn" class="bg-red-500 text-white py-2 px-4 rounded-full hover:bg-red-600 transition duration-300 shadow-md">
+                    <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container mx-auto px-6 py-12">
+        <h2 class="text-3xl font-bold mb-8 text-gray-900">Guide Dashboard</h2>
+
+        <div class="flex flex-wrap gap-4 mb-8">
+            <button id="bookings-btn" class="flex-1 min-w-[200px] text-white py-3 px-6 rounded-xl font-semibold transition duration-300 shadow-lg bg-teal-600 ring-2 ring-offset-2 ring-opacity-50">
+                <i class="fas fa-tasks mr-2"></i> Manage Booking Requests
+            </button>
+            <button id="view-trips-btn" class="flex-1 min-w-[200px] text-white py-3 px-6 rounded-xl font-semibold transition duration-300 shadow-lg bg-indigo-500 hover:bg-indigo-600">
+                <i class="fas fa-route mr-2"></i> View Published Trips
+            </button>
+            <button id="make-trip-btn" class="flex-1 min-w-[200px] text-white py-3 px-6 rounded-xl font-semibold transition duration-300 shadow-lg bg-green-500 hover:bg-green-600">
+                <i class="fas fa-plus-circle mr-2"></i> Create New Trip
+            </button>
+            <button id="tourists-btn" class="flex-1 min-w-[200px] text-white py-3 px-6 rounded-xl font-semibold transition duration-300 shadow-lg bg-red-500 hover:bg-red-600">
+                <i class="fas fa-exclamation-triangle mr-2"></i> Emergency Alerts
+            </button>
+            <button id="profile-btn-tab" class="flex-1 min-w-[200px] text-white py-3 px-6 rounded-xl font-semibold transition duration-300 shadow-lg bg-blue-500 hover:bg-blue-600">
+                <i class="fas fa-user-cog mr-2"></i> Profile & Verification
+            </button>
+            </div>
+
+        <div id="guide-dashboard" class="dashboard-container space-y-8">
+            
+            <div id="bookings-section" class="section">
+                <h3 class="text-2xl font-semibold mb-6 text-gray-800 border-b pb-2">Incoming Booking Requests</h3>
+                
+               <div class="flex border-b border-gray-200 mb-6">
+    <button id="tab-pending" data-status="Pending Guide Approval"
+            class="tab-booking-status py-3 px-6 text-sm font-medium transition duration-150 border-b-2 border-teal-500 text-teal-600">
+        Requests (Pending)
+    </button>
+    <button id="tab-accepted" data-status="Accepted"
+            class="tab-booking-status py-3 px-6 text-sm font-medium transition duration-150 border-b-2 border-transparent text-gray-500 hover:text-teal-600 hover:border-teal-500">
+        Approved
+    </button>
+    <button id="tab-rejected" data-status="Rejected/Cancelled"
+            class="tab-booking-status py-3 px-6 text-sm font-medium transition duration-150 border-b-2 border-transparent text-gray-500 hover:text-teal-600 hover:border-teal-500">
+        Rejected / Cancelled
+    </button>
+    <button id="tab-finished" data-status="Finished"
+            class="tab-booking-status py-3 px-6 text-sm font-medium transition duration-150 border-b-2 border-transparent text-gray-500 hover:text-teal-600 hover:border-teal-500">
+        Finished Trips
+    </button>
+    </div>
+                <div id="guide-bookings" class="p-4 rounded-lg">
+                    <div class="text-center p-8 text-teal-500"><i class="fas fa-spinner fa-spin mr-2"></i> Loading booking requests...</div>
+                </div>
+            </div>
+
+            <div id="view-trips-section" class="section hidden">
+                <h3 class="text-2xl font-semibold mb-6 text-gray-800 border-b pb-2">Your Published Trip Packages</h3>
+                <div id="published-trips-list" class="space-y-6">
+                    </div>
+            </div>
+
+            <div id="make-trip-section" class="section hidden">
+                <h3 class="text-2xl font-semibold mb-6 text-gray-800 border-b pb-2">Create a New Trip Package</h3>
+                <form id="make-trip-form" class="bg-white p-6 rounded-xl shadow-lg space-y-6">
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="package" class="block text-sm font-medium text-gray-700">Package Name</label>
+                            <input type="text" id="package" name="package" required class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500">
+                        </div>
+                        <div>
+                            <label for="price" class="block text-sm font-medium text-gray-700">Price per Tourist (₹)</label>
+                            <input type="number" id="price" name="price" required min="1" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500">
+                        </div>
+                        <div>
+                            <label for="from" class="block text-sm font-medium text-gray-700">Starting Location</label>
+                            <input type="text" id="from" name="from" required class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500">
+                        </div>
+                        <div>
+                            <label for="to" class="block text-sm font-medium text-gray-700">Destination Location</label>
+                            <input type="text" id="to" name="to" required class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="requirement" class="block text-sm font-medium text-gray-700">Package Description / Requirements (What's included, etc.)</label>
+                        <textarea id="requirement" name="requirement" rows="4" required class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Click on the map of Jharkhand to add a location stop. You can add multiple points.</label>
+                        <div id="jharkhand-map" class="relative">
+                            <div id="jharkhand-map1" class="relative">
+                            
+                            </div>
+                            </div>
+                        <ul id="selected-locations-list" class="mt-4 space-y-2 p-2 border rounded-lg bg-gray-50">
+                            <li class="text-gray-500 italic" id="no-locations-msg">No locations selected yet.</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <label for="trip-images" class="block text-sm font-medium text-gray-700">Upload Trip Images (Will be converted to Base64)</label>
+                        <input type="file" id="trip-images" name="trip-images" multiple accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-green-700 transition duration-300 shadow-md">
+                        <i class="fas fa-upload mr-2"></i> Publish Trip Package
+                    </button>
+                </form>
+            </div>
+            
+            <div id="profile-settings-section" class="section hidden">
+                <h3 class="text-2xl font-bold mb-6 text-gray-900 border-b pb-2">Guide Profile Settings</h3>
+                <div class="bg-white p-6 rounded-xl shadow-lg space-y-6">
+
+                    <h4 class="text-xl font-semibold text-gray-700 mb-4">Profile Photo & Description</h4>
+                    
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-200">
+                        <div class="p-3 border rounded-lg bg-gray-50">
+                            <label class="block text-sm font-medium text-gray-700">Name</label>
+                            <p id="guide-name" class="font-semibold text-lg">Loading...</p>
+                        </div>
+                        <div class="p-3 border rounded-lg bg-gray-50">
+                            <label class="block text-sm font-medium text-gray-700">Email</label>
+                            <p id="guide-email" class="font-semibold text-lg">Loading...</p>
+                        </div>
+                        <div class="p-3 border rounded-lg bg-gray-50">
+                            <label class="block text-sm font-medium text-gray-700">Guide ID</label>
+                            <p id="guide-id" class="text-base text-gray-600">Loading...</p>
+                        </div>
+                        <div class="p-3 border rounded-lg bg-gray-50">
+                            <label class="block text-sm font-medium text-gray-700">Registered Since</label>
+                            <p id="guide-date" class="text-base text-gray-600">Loading...</p>
+                        </div>
+                    </div>
+                    
+                    <h4 class="text-xl font-semibold text-gray-700 pt-4 border-t border-gray-200 mb-4">Spoken Languages</h4>
+                    
+                    <div id="languages-container" class="space-y-3">
+                        <p class="text-gray-500 italic">No languages added yet.</p>
+                    </div>
+
+                    <div class="flex items-center space-x-4 pt-4 border-t border-gray-200">
+                        <input type="text" id="new-language-input" placeholder="Add a new language (e.g., Bengali)" 
+                               class="flex-grow p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        <button id="add-language-btn" type="button" 
+                                class="bg-blue-600 text-white p-3 rounded-full hover:bg-blue-700 transition duration-300 shadow-md">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+
+                    <button id="save-profile-btn" class="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-green-700 transition duration-300 shadow-md mb-8">
+                        <i class="fas fa-save mr-2"></i> Save Profile Settings
+                    </button>
+                    
+                    <h4 class="text-xl font-semibold text-gray-700 pt-4 border-t border-gray-200 mb-4">Verification Documents (Aadhar, PAN)</h4>
+                    <form id="verification-form" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="mb-4">
+                                <label for="aadharNo" class="block text-sm font-medium text-gray-700">
+                                    Aadhar Number <span class="text-red-500">(Compulsory)</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    id="aadharNo"
+                                    name="aadharNo"
+                                    required
+                                    maxlength="14"
+                                    placeholder="XXXX-XXXX-XXXX"
+                                    inputmode="numeric"
+                                    class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                >
+                                <p id="aadharError" class="text-xs text-red-600 mt-1 hidden">
+                                    Aadhar must be 12 digits (not starting with 0 or 1). Please check the format.
+                                </p>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="licenseNo" class="block text-sm font-medium text-gray-700">
+                                    License Number (Optional)
+                                </label>
+                                <input
+                                    type="text"
+                                    id="licenseNo"
+                                    name="licenseNo"
+                                    maxlength="20"
+                                    placeholder="DL-XX-YYYY-1234567"
+                                    class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                >
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="panNo" class="block text-sm font-medium text-gray-700">
+                                    PAN Card Number (Optional)
+                                </label>
+                                <input
+                                    type="text"
+                                    id="panNo"
+                                    name="panNo"
+                                    maxlength="10"
+                                    placeholder="ABCDE1234F"
+                                    class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 uppercase"
+                                >
+                                <p id="panError" class="text-xs text-red-600 mt-1 hidden">
+                                    PAN must be in format: 5 letters, 4 numbers, 1 letter (e.g., ABCDE1234F).
+                                </p>
+                            </div>
+                            
+                            <div class="md:col-span-2">
+                                <button type="submit" id="save-verification-btn" class="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-indigo-700 transition duration-300 shadow-md">
+                                    <i class="fas fa-file-alt mr-2"></i> Save Verification Documents
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <p class="mt-4 text-sm text-yellow-700 bg-yellow-100 p-3 rounded-md border border-yellow-300">
+                        ⚠️ **Security Warning:** Aadhar and PAN are sensitive. This information must be encrypted on the server-side and should never be stored in local storage.
+                    </p>
+                    </div>
+            </div>
+            <div id="tourists-section" class="section hidden">
+                <h3 class="text-2xl font-semibold mb-6 text-gray-800 border-b pb-2 text-red-600">
+                    <i class="fas fa-bell mr-2"></i> Recent Emergency SOS Alerts
+                </h3>
+                <div id="emergency-alerts-list" class="space-y-6">
+                    <div class="text-center p-8 text-red-500"><i class="fas fa-spinner fa-spin mr-2"></i> Loading emergency alerts...</div>
+                </div>
+            </div>
+            </div>
+    </div>
+    
+    <script>
+        const API_URL = '/api';
+        
+        // NEW GLOBAL STORAGE for all fetched bookings
+        let allBookings = []; 
+
+        // --- Existing Logout Logic ---
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        });
+
+        // --- MODIFIED: Added click event for the header profile icon ---
+        document.getElementById('profile-btn').addEventListener('click', () => {
+            // Use the new tab button logic for styling but ensure profile section is shown
+            switchDashboardView(profileSettingsSection, profileBtnTab); 
+            populateGuideDetails(); // Load guide details and languages from localStorage
+            renderLanguages(); // Render the languages that were loaded
+        });
+
+        // --- Dashboard Tab Switching Logic ---
+        const bookingsBtn = document.getElementById('bookings-btn');
+        const touristsBtn = document.getElementById('tourists-btn');
+        const viewTripsBtn = document.getElementById('view-trips-btn'); 
+        const makeTripBtn = document.getElementById('make-trip-btn');
+        
+        // NEW Profile Elements
+        const profileSettingsSection = document.getElementById('profile-settings-section');
+        const profileBtnTab = document.getElementById('profile-btn-tab'); // NEW TAB BUTTON
+        const addLanguageBtn = document.getElementById('add-language-btn');
+        const newLanguageInput = document.getElementById('new-language-input');
+        const languagesContainer = document.getElementById('languages-container');
+        
+       
+        // --- END NEW PROFILE ELEMENTS ---
+
+        const guideNameEl = document.getElementById('guide-name');
+        const guideEmailEl = document.getElementById('guide-email');
+        const guideIdEl = document.getElementById('guide-id');
+        const guideDateEl = document.getElementById('guide-date');
+
+        const bookingsSection = document.getElementById('bookings-section');
+        const touristsSection = document.getElementById('tourists-section');
+        const viewTripsSection = document.getElementById('view-trips-section'); 
+        const makeTripSection = document.getElementById('make-trip-section');
+        const publishedTripsList = document.getElementById('published-trips-list'); 
+        const guideBookingsContainer = document.getElementById('guide-bookings');
+        
+        // MODIFIED: Element for Emergency Alerts
+        const emergencyAlertsList = document.getElementById('emergency-alerts-list');
+
+        // MODIFIED: Added profileSettingsSection and profileBtnTab to respective arrays
+        const sections = [bookingsSection, touristsSection, viewTripsSection, makeTripSection, profileSettingsSection];
+        const buttons = [bookingsBtn, touristsBtn, viewTripsBtn, makeTripBtn, profileBtnTab]; 
+
+        // NEW Verification Form Elements
+        const verificationForm = document.getElementById('verification-form');
+        const saveVerificationBtn = document.getElementById('save-verification-btn');
+        
+        /**
+         * Hides all sections and shows the selected one.
+         */
+        function switchDashboardView(sectionToShow, buttonToActivate) {
+            sections.forEach(section => section.classList.add('hidden'));
+            // Remove all specific color classes and rings from all buttons
+            buttons.forEach(btn => btn.classList.remove('bg-teal-700', 'bg-indigo-700', 'bg-green-700', 'bg-red-700', 'bg-blue-700', 'ring-2', 'ring-offset-2', 'ring-opacity-50'));
+
+            sectionToShow.classList.remove('hidden');
+            
+            // Only proceed if a tab button was clicked (not the header icon)
+            if (buttonToActivate) {
+                // Get the base color class (e.g., bg-teal-500)
+                let baseClass = Array.from(buttonToActivate.classList).find(cls => cls.startsWith('bg-') && cls.endsWith('-500'));
+                if (!baseClass) {
+                    baseClass = Array.from(buttonToActivate.classList).find(cls => cls.startsWith('bg-') && cls.endsWith('-600'));
+                }
+
+                if (baseClass) {
+                     // Determine the active color class (e.g., bg-teal-700)
+                    const activeClass = baseClass.replace('-500', '-700').replace('-600', '-700');
+                    
+                    buttonToActivate.classList.add(activeClass, 'ring-2', 'ring-offset-2', 'ring-opacity-50');
+                }
+            }
+
+            // Section-specific actions
+            if (sectionToShow === bookingsSection) {
+                fetchGuideBookings();
+            } else if (sectionToShow === viewTripsSection) { 
+                fetchPublishedTrips();
+            } else if (sectionToShow === touristsSection) {
+                fetchEmergencyAlerts();
+            }
+        }
+
+        // --- MODIFIED: Guide Profile Population (Updated to include about and photo) ---
+       function populateGuideDetails() {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
+        guideNameEl.textContent = user.name || 'N/A';
+        guideEmailEl.textContent = user.email || 'N/A';
+        
+        // FIX: Use user.id for the Guide ID
+        guideIdEl.textContent = user.id || 'N/A'; 
+        
+        // FIX: Use user.createdAt for the date
+        if (user.createdAt) {
+            guideDateEl.textContent = new Date(user.createdAt).toLocaleDateString() || 'N/A';
+        } else {
+             guideDateEl.textContent = 'Date N/A';
+        }
+
+        // --- UPDATED CODE START: Populate Aadhar and other verification fields ---
+        if (user.aadharNo) {
+            document.getElementById('aadharNo').value = user.aadharNo;
+        }
+        if (user.licenseNo) {
+            document.getElementById('licenseNo').value = user.licenseNo;
+        }
+        if (user.panNo) {
+            document.getElementById('panNo').value = user.panNo;
+        }
+        // --- UPDATED CODE END ---
+        
+        // NEW: Populate About Me
+        // NEW: Populate Profile Photo
+
+        // Initialize guideLanguages from the user object in localStorage
+        if (user.languages && Array.isArray(user.languages)) {
+            guideLanguages = [...user.languages]; 
+        } else {
+            guideLanguages = ['English', 'Hindi'];
+        }
+    }
+}
+        // --- END MODIFIED: Guide Profile Population ---
+
+        // --- NEW: Profile Photo and About Me Change Listeners ---
+        
+        // --- END NEW: Profile Photo and About Me Change Listeners ---
+
+
+        // --- NEW: Language Management Logic (Existing) ---
+        let guideLanguages = []; // Will be populated by populateGuideDetails
+
+        /**
+         * Renders the list of languages in the UI.
+         */
+        function renderLanguages() {
+            languagesContainer.innerHTML = '';
+            
+            if (guideLanguages.length === 0) {
+                languagesContainer.innerHTML = '<p class="text-gray-500 italic">No languages added yet.</p>';
+                return;
+            }
+            
+            guideLanguages.forEach((lang, index) => {
+                const languageItem = document.createElement('div');
+                // Use justify-between to space the name and the trash button
+                languageItem.className = 'flex items-center justify-between space-x-3 p-3 bg-gray-50 rounded-lg';
+                languageItem.innerHTML = `
+                    <span class="text-lg font-medium text-gray-700">${lang}</span>
+                    <button type="button" data-language="${lang}" data-index="${index}" class="text-red-500 hover:text-red-700 remove-language-btn">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                `;
+                languagesContainer.appendChild(languageItem);
+            });
+            
+            // Attach removal listeners
+            document.querySelectorAll('.remove-language-btn').forEach(button => {
+                button.addEventListener('click', removeLanguage);
+            });
+        }
+        
+        /**
+         * Handles adding a new language from the input field.
+         */
+        if (addLanguageBtn) {
+            addLanguageBtn.addEventListener('click', () => {
+                const newLang = newLanguageInput.value.trim();
+                // Check for empty string and duplicates (case-insensitive)
+                if (newLang && !guideLanguages.map(l => l.toLowerCase()).includes(newLang.toLowerCase())) {
+                    guideLanguages.push(newLang);
+                    newLanguageInput.value = ''; // Clear input
+                    renderLanguages();
+                } else if (newLang) {
+                    alert(`The language "${newLang}" is already in the list.`);
+                }
+            });
+        }
+        
+        /**
+         * Handles removing a language.
+         */
+        function removeLanguage(event) {
+            const langToRemove = event.currentTarget.getAttribute('data-language');
+            if (confirm(`Are you sure you want to remove "${langToRemove}"?`)) {
+                // Filter out the language to remove
+                guideLanguages = guideLanguages.filter(lang => lang !== langToRemove);
+                renderLanguages();
+            }
+        }
+        
+        // --- MODIFIED: Save Profile (API call to PATCH /api/users/profile) ---
+        if (document.getElementById('save-profile-btn')) {
+            document.getElementById('save-profile-btn').addEventListener('click', async () => {
+                 
+                 const token = localStorage.getItem('token');
+                 if (!token) {
+                     alert('Authentication error. Please log in.');
+                     return;
+                 }
+                 
+                 const saveButton = document.getElementById('save-profile-btn');
+                 const originalText = saveButton.innerHTML;
+                 saveButton.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Saving...`;
+                 saveButton.disabled = true;
+
+                 // 1. Prepare data payload
+                 const updatePayload = { 
+                     languages: guideLanguages, // Existing language data
+                 };
+
+                 // 2. Handle new profile photo upload
+                 
+                 
+                 
+                 try {
+                     // API endpoint: PATCH /api/users/profile
+                     const response = await fetch(`${API_URL}/users/profile`, {
+                         method: 'PATCH',
+                         headers: {
+                             'Content-Type': 'application/json',
+                             'Authorization': `Bearer ${token}`
+                         },
+                         // Send the combined payload
+                         body: JSON.stringify(updatePayload)
+                     });
+
+                     const result = await response.json();
+
+                     if (response.ok) {
+                         alert('Profile settings saved successfully!');
+                         
+                         // Update local storage with the new user data returned from the server
+                         localStorage.setItem('user', JSON.stringify(result));
+                         
+                         // Reset the file input so the same file isn't sent on subsequent saves
+                       //  profilePhotoInput.value = '';
+                         
+                         // Re-populate details to ensure fresh data is shown (including new photo URL/about text)
+                         populateGuideDetails();
+                     } else {
+                         alert(`Failed to save profile: ${result.message || 'Server error'}`);
+                     }
+                 } catch (error) {
+                     console.error("Error saving profile:", error);
+                     alert('An unexpected network error occurred while saving.');
+                 } finally {
+                     saveButton.innerHTML = originalText;
+                     saveButton.disabled = false;
+                 }
+            });
+        }
+        // --- END MODIFIED: Save Profile Logic ---
+
+        // --- NEW MODIFIED CODE: Validation Functions for Verification (Existing) ---
+
+        /**
+         * Checks Aadhar format: 12 digits, first digit 2-9.
+         */
+        function isValidAadhar(str) {
+            // Remove all spaces and hyphens for a clean 12-digit check
+            const cleanStr = str.replace(/[\s-]/g, '');
+            // Basic check: 12 digits, first digit 2-9
+            return cleanStr.length === 12 && /^[2-9]\d{11}$/.test(cleanStr); 
+        }
+
+        /**
+         * Checks PAN format: 5 Letters, 4 Numbers, 1 Letter (e.g., ABCDE1234F).
+         */
+        function isValidPan(str) {
+            const regex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+            // Ensure input is checked in uppercase
+            return regex.test(str.toUpperCase());
+        }
+
+        // --- NEW MODIFIED CODE: Verification Form Submission (Existing) ---
+        if (verificationForm) {
+            verificationForm.addEventListener('submit', async function(e) {
+                e.preventDefault(); // Stop default form submission
+
+                const aadharInput = document.getElementById('aadharNo');
+                const aadharError = document.getElementById('aadharError');
+                const panInput = document.getElementById('panNo');
+                const panError = document.getElementById('panError');
+
+                let allValid = true;
+                
+                // 1. Aadhar Validation (Compulsory)
+                if (!isValidAadhar(aadharInput.value)) {
+                    aadharError.classList.remove('hidden');
+                    aadharInput.focus();
+                    allValid = false;
+                } else {
+                    aadharError.classList.add('hidden');
+                    // Clean the Aadhar number before sending
+                    aadharInput.value = aadharInput.value.replace(/[\s-]/g, ''); 
+                }
+
+                // 2. PAN Validation (Optional, only if a value is entered)
+                if (panInput.value.length > 0 && !isValidPan(panInput.value)) {
+                    panError.classList.remove('hidden');
+                    panInput.focus();
+                    allValid = false;
+                } else {
+                    panError.classList.add('hidden');
+                    // Ensure PAN is uppercase before sending
+                    panInput.value = panInput.value.toUpperCase(); 
+                }
+
+                if (!allValid) return; // Stop if validation failed
+
+                const token = localStorage.getItem('token');
+                if (!token) {
+                     alert('Authentication error. Please log in.');
+                     return;
+                }
+                 
+                const originalText = saveVerificationBtn.innerHTML;
+                saveVerificationBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Saving...`;
+                saveVerificationBtn.disabled = true;
+
+                const formData = {
+                    aadharNo: aadharInput.value,
+                    licenseNo: document.getElementById('licenseNo').value,
+                    panNo: panInput.value
+                };
+                
+                try {
+                    // API endpoint: PATCH /api/users/profile to update sensitive details
+                    // NOTE: The server should handle verification and secure storage.
+                    const response = await fetch(`${API_URL}/users/profile`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(formData)
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        alert('Verification documents saved/updated successfully!');
+                    } else {
+                        alert(`Failed to save documents: ${result.message || 'Server error'}`);
+                    }
+                } catch (error) {
+                    console.error("Error saving verification:", error);
+                    alert('An unexpected network error occurred while saving.');
+                } finally {
+                    saveVerificationBtn.innerHTML = originalText;
+                    saveVerificationBtn.disabled = false;
+                }
+            });
+        }
+        // --- END NEW MODIFIED CODE: Verification Form Submission ---
+
+        // --- Existing Code (Emergency, Booking, Trips, Map, Form Submission) Retained ---
+
+        async function fetchEmergencyAlerts() {
+            emergencyAlertsList.innerHTML = '<div class="text-center p-8 text-red-500"><i class="fas fa-spinner fa-spin mr-2"></i> Loading emergency alerts...</div>';
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                emergencyAlertsList.innerHTML = '<div class="text-red-500 p-6">Authentication error. Please log in.</div>';
+                return;
+            }
+
+            try {
+                // ASSUMPTION: Server endpoint /api/guide/emergencies returns a list of alerts 
+                // relevant to the logged-in guide's currently booked tourists.
+                const response = await fetch(`${API_URL}/guide/emergencies`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch emergency alerts.');
+                }
+
+                const alerts = await response.json(); 
+                
+                renderEmergencyAlerts(alerts);
+
+            } catch (error) {
+                console.error('Error fetching alerts:', error);
+                emergencyAlertsList.innerHTML = `<div class="text-red-500 p-6">Could not load alerts: ${error.message || 'Server error'}.</div>`;
+            }
+        }
+
+        function renderEmergencyAlerts(alerts) {
+    // Mock Data for Demo if no real data is returned (REMOVE IN PRODUCTION)
+    if (alerts.length === 0) {
+         alerts = [
+            {
+                _id: 'mock_1',
+                touristName: 'Rohan Sharma',
+                touristPhone: '+919876543210',
+                touristEmail: 'rohan.s@example.com',
+                location: { latitude: 23.3440, longitude: 85.3096 }, // Mock Ranchi
+                timestamp: new Date().toISOString()
+            },
+            {
+                _id: 'mock_2',
+                touristName: 'Priya Verma',
+                touristPhone: '+919988776655',
+                touristEmail: 'priya.v@example.com',
+                // This mock simulates the missing location data observed in the network tab
+                location: {}, 
+                timestamp: new Date(Date.now() - 3600000).toISOString() // 1 hour ago
+            }
+        ];
+    }
+    
+    if (alerts.length === 0) {
+        emergencyAlertsList.innerHTML = '<div class="bg-green-100 p-6 rounded-lg text-green-800">No recent SOS alerts found.</div>';
+        return;
+    }
+
+    emergencyAlertsList.innerHTML = `
+        <div class="space-y-4">
+            ${alerts.map(alert => {
+                const formattedTime = new Date(alert.timestamp).toLocaleString('en-IN');
+                
+                // --- MODIFIED CODE START ---
+                // Safely extract coordinates, checking if location object and properties exist
+                const latitude = alert.location && alert.location.latitude;
+                const longitude = alert.location && alert.location.longitude;
+                
+                let locationDisplay;
+                let mapsLink;
+                let mapsLinkClass = 'bg-red-600';
+
+                if (latitude && longitude) {
+                    locationDisplay = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+                    // Google Maps link uses coordinates for search
+                    mapsLink = `https://www.google.com/maps/search/?api=1&query=$${latitude},${longitude}`;
+                } else {
+                    locationDisplay = 'Location Data Not Available';
+                    mapsLink = '#'; // Use a safe placeholder link
+                    mapsLinkClass = 'bg-gray-500 cursor-not-allowed'; // Style it as disabled
+                }
+                // --- MODIFIED CODE END ---
+                
+                return `
+                    <div class="alert-card bg-white p-5 rounded-xl shadow-lg border-l-4 border-red-500">
+                        <div class="flex justify-between items-start">
+                            <div class="space-y-1">
+                                <p class="text-xl font-bold text-red-800"><i class="fas fa-siren-on mr-2"></i> SOS ALERT</p>
+                                <p class="text-sm text-gray-700">Tourist: <strong>${alert.touristName || 'N/A'}</strong></p>
+                                <p class="text-sm text-gray-700">Contact: 
+                                    <a href="tel:${alert.touristPhone}" class="text-blue-600 hover:underline">${alert.touristPhone || 'N/A'}</a> | 
+                                    <a href="mailto:${alert.touristEmail}" class="text-blue-600 hover:underline">${alert.touristEmail || 'N/A'}</a>
+                                </p>
+                            </div>
+                            <span class="text-xs px-3 py-1 font-semibold rounded-full bg-red-100 text-red-700">${formattedTime}</span>
+                        </div>
+                        <div class="mt-3 text-sm text-gray-700">
+                            <p><i class="fas fa-map-pin mr-2 text-red-500"></i> Location Coordinates: <strong>${locationDisplay}</strong></p>
+                        </div>
+                        
+                        <div class="mt-4 pt-4 border-t border-gray-100 text-right">
+                            <a href="${mapsLink}" target="_blank" 
+                               class="${mapsLinkClass} text-white text-sm py-2 px-4 rounded-lg hover:bg-red-700 transition duration-300">
+                                <i class="fas fa-map-marked-alt mr-1"></i> View on Map
+                            </a>
+                            <a href="tel:${alert.touristPhone}" 
+                               class="bg-yellow-500 text-white text-sm py-2 px-4 rounded-lg hover:bg-yellow-600 transition duration-300 ml-2">
+                                <i class="fas fa-phone mr-1"></i> Call Tourist
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+}
+
+      async function handleBookingAction(event) {
+    const button = event.currentTarget;
+    const bookingId = button.getAttribute('data-booking-id');
+    const token = localStorage.getItem('token');
+    
+    // === MODIFIED LOGIC START: Determine the action based on the button class ===
+    let action;
+    if (button.classList.contains('accept-booking-btn')) {
+        action = 'Accepted';
+    } else if (button.classList.contains('reject-booking-btn')) {
+        action = 'Rejected';
+    } else if (button.classList.contains('finish-booking-btn')) {
+        // NEW: Handles the 'Finish' button click, setting the status to 'Finished'
+        action = 'Finished'; 
+    } else {
+        return; // Should not happen
+    }
+    // === MODIFIED LOGIC END ===
+    
+    if (!token) {
+        alert('Authentication error. Please log in.');
+        return;
+    }
+    
+    // The confirmation message now uses the determined action
+    if (!confirm(`Are you sure you want to change this booking status to ${action}?`)) {
+        return;
+    }
+
+    // Disable buttons during API call
+    button.disabled = true;
+    const originalText = button.innerHTML;
+    
+    // MODIFIED: Determine loading text based on action
+    let loadingText;
+    if (action === 'Accepted') {
+        loadingText = 'Accepting';
+    } else if (action === 'Rejected') {
+        loadingText = 'Rejecting';
+    } else if (action === 'Finished') {
+        loadingText = 'Finishing'; // New loading text for 'Finished' action
+    }
+    
+    button.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${loadingText}`;
+
+    try {
+        const response = await fetch(`${API_URL}/guide/bookings/${bookingId}/status`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            // The API payload uses the determined action status
+            body: JSON.stringify({ status: action }) 
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            alert(`Booking status updated to ${action} successfully!`);
+            fetchGuideBookings(); // Refresh the entire list to show new status
+        } else {
+            alert(`Failed to update booking status to ${action}: ${result.message || 'Server error'}`);
+        }
+
+    } catch (error) {
+        console.error(`Error during booking status update:`, error);
+        alert('An unexpected network error occurred.');
+    } finally {
+        // Re-enable and reset the button state after the API call (though the refresh will override this)
+        button.disabled = false;
+        button.innerHTML = originalText;
+    }
+}
+        // NEW: Helper function to set the active booking status tab style
+        function setActiveTab(buttonId) {
+            document.querySelectorAll('.tab-booking-status').forEach(btn => {
+                btn.classList.remove('border-teal-500', 'text-teal-600');
+                btn.classList.add('border-transparent', 'text-gray-500', 'hover:text-teal-600', 'hover:border-teal-500');
+            });
+            const activeBtn = document.getElementById(buttonId);
+            if(activeBtn) {
+                activeBtn.classList.remove('border-transparent', 'text-gray-500', 'hover:text-teal-600', 'hover:border-teal-500');
+                activeBtn.classList.add('border-teal-500', 'text-teal-600');
+            }
+        }
+
+        // MODIFIED: Fetch function to store all bookings globally and call the filter function
+        async function fetchGuideBookings() {
+            guideBookingsContainer.innerHTML = '<div class="text-center p-8 text-teal-500"><i class="fas fa-spinner fa-spin mr-2"></i> Loading booking requests...</div>';
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                guideBookingsContainer.innerHTML = '<div class="text-red-500 p-6">Authentication error. Please log in.</div>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/guide/bookings`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch bookings.');
+                }
+
+                // Store all bookings globally
+                allBookings = await response.json(); 
+                
+                // Automatically render the Pending tab after fetch (default view)
+                filterAndRenderBookings('Pending Guide Approval', 'tab-pending'); 
+
+            } catch (error) {
+                console.error('Error fetching bookings:', error);
+                guideBookingsContainer.innerHTML = `<div class="text-red-500 p-6">Could not load bookings: ${error.message || 'Server error'}.</div>`;
+            }
+        }
+        
+        /**
+         * Filters the allBookings array and calls renderBookings with the filtered subset.
+         * @param {string} statusFilter The status to filter by (e.g., 'Pending Guide Approval', 'Accepted', 'Rejected/Cancelled').
+         * @param {string} tabId The ID of the tab to mark as active.
+         */
+       function filterAndRenderBookings(statusFilter, tabId) {
+    setActiveTab(tabId);
+    
+    // Handle the 'Rejected / Cancelled' status group
+    const isCancelledOrRejectedFilter = statusFilter.includes('Rejected/Cancelled');
+
+    const filteredBookings = allBookings.filter(booking => {
+        if (isCancelledOrRejectedFilter) {
+            // Include both 'Rejected' and 'Cancelled' statuses for this tab
+            return booking.status === 'Rejected' || booking.status === 'Cancelled';
+        }
+        // MODIFIED COMMENT: Match the exact status for Pending Guide Approval, Accepted, or Finished
+        return booking.status === statusFilter;
+    });
+    
+    renderBookings(filteredBookings, statusFilter);
+}
+
+
+        // MODIFIED: Accepts the list of filtered bookings and the current status filter
+       function renderBookings(bookings, statusFilter) {
+            
+    // Check if the filtered list is empty
+    if (bookings.length === 0) {
+        const emptyMessage = statusFilter.includes('Pending') ? 
+            'You have no **Pending** booking requests.' : 
+            (statusFilter.includes('Accepted') ? 
+            'You have no **Approved** booking requests.' : 
+            (statusFilter.includes('Rejected/Cancelled') ?
+            'You have no **Rejected or Cancelled** booking requests.' :
+            'You have no **Finished** booking requests.')); // <--- MODIFIED: Added check for Finished tab
+            
+        guideBookingsContainer.innerHTML = `<div class="bg-blue-100 p-6 rounded-lg text-blue-800">${emptyMessage}</div>`;
+        return;
+    }
+
+    guideBookingsContainer.innerHTML = `
+        <div class="space-y-4">
+            ${bookings.map(booking => {
+                // Original logic to determine card content and style
+                const isPending = booking.status.includes('Pending');
+                const isAccepted = booking.status === 'Accepted'; 
+                // NEW: Check for Finished status
+                const isFinished = booking.status === 'Finished'; // <--- ADDED
+                
+                // MODIFIED: Added check and color for Finished status
+                const statusColor = isPending ? 'bg-yellow-200 text-yellow-800' : 
+                                    (isAccepted ? 'bg-green-200 text-green-800' : 
+                                    (isFinished ? 'bg-indigo-200 text-indigo-800' : 
+                                    'bg-red-200 text-red-800'));
+                
+                const formattedDate = new Date(booking.bookingDate).toLocaleDateString('en-IN', {
+                    year: 'numeric', month: 'short', day: 'numeric'
+                });
+                const formattedPrice = `₹${Number(booking.totalEstimatedPrice).toLocaleString('en-IN')}`;
+
+                // Determine the action buttons to display
+                let actionButtons;
+                
+                if (isAccepted) {
+                    // MODIFIED: Added 'Finish' button for ACCEPTED bookings
+                    actionButtons = `
+                        <button class="finish-booking-btn bg-indigo-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-indigo-700 transition duration-300"
+                                data-booking-id="${booking._id}">
+                            <i class="fas fa-flag-checkered mr-1"></i> Finish
+                        </button>
+                        <a href="mailto:${booking.touristEmail}" 
+                            class="bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300 ml-2">
+                            <i class="fas fa-comment-dots mr-1"></i> Message Tourist
+                        </a>
+                    `;
+                } else if (isPending) {
+                    // Display Accept/Reject buttons for PENDING bookings
+                    actionButtons = `
+                        <button class="accept-booking-btn bg-green-500 text-white text-sm py-2 px-4 rounded-lg hover:bg-green-600 transition duration-300" 
+                                data-booking-id="${booking._id}">
+                            <i class="fas fa-check mr-1"></i> Accept
+                        </button>
+                        <button class="reject-booking-btn bg-red-500 text-white text-sm py-2 px-4 rounded-lg hover:bg-red-600 transition duration-300 ml-2"
+                                data-booking-id="${booking._id}">
+                            <i class="fas fa-times mr-1"></i> Reject
+                        </button>
+                    `;
+                } else {
+                    // For Rejected/Cancelled/Finished bookings, show a note
+                    actionButtons = `<span class="text-sm text-gray-500 italic">Booking finalized.</span>`;
+                }
+
+
+                return `
+                    <div class="booking-card bg-white p-5 rounded-xl shadow-lg border-l-4 border-teal-500">
+                        <div class="flex justify-between items-start">
+                            <div class="space-y-1">
+                                <p class="text-lg font-bold text-gray-800">${booking.tripPackage}</p>
+                                <p class="text-sm text-gray-600">Tourist: ${booking.touristName} (<a href="mailto:${booking.touristEmail}" class="text-teal-600 hover:underline">${booking.touristEmail}</a>)</p>
+                            </div>
+                            <span class="px-3 py-1 text-xs font-semibold rounded-full ${statusColor}">
+                                ${booking.status}
+                            </span>
+                        </div>
+                        <div class="mt-3 grid grid-cols-2 gap-2 text-sm text-gray-700">
+                            <p><i class="fas fa-calendar-alt mr-2 text-teal-500"></i> Start Date: <strong>${formattedDate}</strong></p>
+                            <p><i class="fas fa-users mr-2 text-teal-500"></i> Headcount: <strong>${booking.touristCount}</strong></p>
+                            <p class="col-span-2"><i class="fas fa-money-bill-wave mr-2 text-teal-500"></i> Estimated Total: <strong>${formattedPrice}</strong></p>
+                        </div>
+                        
+                        <div class="mt-4 pt-4 border-t border-gray-100 text-right">
+                            ${actionButtons}
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+    
+    // Attach event listeners ONLY to the Accept/Reject/Finish buttons
+    document.querySelectorAll('.accept-booking-btn').forEach(button => {
+        button.addEventListener('click', handleBookingAction);
+    });
+    document.querySelectorAll('.reject-booking-btn').forEach(button => {
+        button.addEventListener('click', handleBookingAction);
+    });
+    // NEW: Attach listener for the Finish button
+    document.querySelectorAll('.finish-booking-btn').forEach(button => {
+        button.addEventListener('click', handleBookingAction);
+    });
+}
+
+        async function fetchPublishedTrips() {
+            publishedTripsList.innerHTML = '<div class="text-center p-8 text-indigo-500"><i class="fas fa-spinner fa-spin mr-2"></i> Loading your trips...</div>';
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                publishedTripsList.innerHTML = '<div class="text-red-500 p-6">Authentication error. Please log in.</div>';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/guide/trips', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 403) {
+                         throw new Error('Access denied. Guide role required.');
+                    }
+                    throw new Error('Failed to fetch trips.');
+                }
+
+                const trips = await response.json();
+                renderTrips(trips);
+
+            } catch (error) {
+                console.error('Error fetching trips:', error);
+                publishedTripsList.innerHTML = `<div class="text-red-500 p-6">Could not load trips: ${error.message || 'Server error'}.</div>`;
+            }
+        }
+
+        function renderTrips(trips) {
+            if (trips.length === 0) {
+                publishedTripsList.innerHTML = '<div class="bg-yellow-100 p-6 rounded-lg text-yellow-800">You have not published any trip packages yet.</div>';
+                return;
+            }
+
+            publishedTripsList.innerHTML = trips.map(trip => {
+                const stopsString = Array.isArray(trip.locations) && trip.locations.length > 0 
+                    ? trip.locations.map(loc => loc.name).join(' → ')
+                    : 'N/A';
+                    
+                const formattedPrice = trip.price ? `₹${Number(trip.price).toLocaleString('en-IN')}` : 'Price not set';
+
+                return `
+                    <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-indigo-500">
+                        <div class="flex justify-between items-start mb-4">
+                            <h4 class="text-xl font-bold text-gray-800">${trip.package}</h4>
+                            <span class="text-2xl font-semibold text-green-600">${formattedPrice}</span>
+                        </div>
+                        <div class="text-sm text-gray-600 space-y-2">
+                            <p><i class="fas fa-map-marker-alt text-indigo-500 mr-2"></i> <strong>Route:</strong> ${trip.from} to ${trip.to}</p>
+                            <p>
+                                <i class="fas fa-list-alt text-indigo-500 mr-2"></i> 
+                                <strong>Stops:</strong> 
+                                ${stopsString}
+                            </p>
+                            <p class="mt-3">${trip.requirement}</p>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-gray-100 text-right">
+                            <button class="delete-trip-btn bg-red-500 text-white text-sm py-2 px-4 rounded-lg hover:bg-red-600 transition duration-300" data-trip-id="${trip._id}">
+                                <i class="fas fa-trash-alt mr-1"></i> Delete
+                            </button>
+                            
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Attach event listeners after rendering
+            attachTripButtonListeners();
+        }
+
+        function attachTripButtonListeners() {
+            // Delete Listener
+            document.querySelectorAll('.delete-trip-btn').forEach(button => {
+                button.addEventListener('click', handleDeleteTrip);
+            });
+
+            // Edit Listener (Currently a placeholder)
+            document.querySelectorAll('.edit-trip-btn').forEach(button => {
+                button.addEventListener('click', handleEditTrip);
+            });
+        }
+
+        async function handleDeleteTrip(event) {
+            const tripId = event.currentTarget.getAttribute('data-trip-id');
+
+            if (!confirm("Are you sure you want to delete this trip package? This action cannot be undone.")) {
+                return;
+            }
+
+            const token = localStorage.getItem('token');
+
+            try {
+                const response = await fetch(`/api/guide/trips/${tripId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('Trip package deleted successfully.');
+                    // Refresh the list after successful deletion
+                    fetchPublishedTrips();
+                } else {
+                    alert(`Failed to delete trip: ${result.message || 'Server error'}`);
+                    console.error('Delete error:', result);
+                }
+            } catch (error) {
+                console.error('Network error during deletion:', error);
+                alert('An unexpected network error occurred during deletion.');
+            }
+        }
+
+        function handleEditTrip(event) {
+            const tripId = event.currentTarget.getAttribute('data-trip-id');
+            
+            alert(`Edit functionality for Trip ID: ${tripId} is currently a placeholder. To fully implement, you need to load the trip data into the 'Make Trip' form and change the submission type to 'PUT' for updating.`);
+            
+            // For now, just switch to the 'Make Trip' tab
+            switchDashboardView(makeTripSection, makeTripBtn);
+        }
+
+        const mapContainer = document.getElementById('jharkhand-map');
+        const selectedLocationsList = document.getElementById('selected-locations-list');
+        let tripLocations = []; 
+
+        if(mapContainer) {
+            mapContainer.addEventListener('click', (event) => {
+                const rect = mapContainer.getBoundingClientRect();
+                const xPercent = ((event.clientX - rect.left) / rect.width) * 100;
+                const yPercent = ((event.clientY - rect.top) / rect.height) * 100;
+                
+                const locationName = prompt(`Enter a name for this location (e.g., Ranchi, Temple):`);
+
+                if (!locationName) return;
+
+                const newLocation = {
+                    name: locationName,
+                    // Note: In a real app, you would translate these percentage coords to real latitude/longitude
+                    xPercent: xPercent.toFixed(2), 
+                    yPercent: yPercent.toFixed(2)
+                };
+                tripLocations.push(newLocation);
+                
+                renderMapLocations();
+            });
+        }
+        
+        function renderMapLocations() {
+            mapContainer.querySelectorAll('.location-marker').forEach(marker => marker.remove());
+            selectedLocationsList.innerHTML = '';
+            
+            if (tripLocations.length === 0) {
+                selectedLocationsList.innerHTML = '<li class="text-gray-500 italic" id="no-locations-msg">No locations selected yet.</li>';
+                return;
+            }
+
+            const existingNoMsg = document.getElementById('no-locations-msg');
+            if (existingNoMsg) existingNoMsg.remove();
+            
+            tripLocations.forEach((loc, index) => {
+                const marker = document.createElement('div');
+                marker.className = 'location-marker';
+                marker.innerHTML = `<i class="fas fa-map-pin"></i>`;
+                marker.style.left = `${loc.xPercent}%`;
+                marker.style.top = `${loc.yPercent}%`;
+                mapContainer.appendChild(marker);
+
+                const listItem = document.createElement('li');
+                listItem.className = 'flex justify-between items-center bg-gray-50 p-2 rounded-lg';
+                listItem.innerHTML = `
+                    <span>${index + 1}. ${loc.name}</span>
+                    <button type="button" data-index="${index}" class="remove-location-btn text-red-500 hover:text-red-700 text-sm p-1">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                selectedLocationsList.appendChild(listItem);
+            });
+
+            document.querySelectorAll('.remove-location-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const index = e.currentTarget.getAttribute('data-index');
+                    tripLocations.splice(index, 1);
+                    renderMapLocations();
+                });
+            });
+        }
+
+        function filesToBase64(files) {
+            return Promise.all(Array.from(files).map(file => {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        resolve({ base64: reader.result, comment: file.name }); 
+                    };
+                    reader.onerror = error => reject(error);
+                    reader.readAsDataURL(file);
+                });
+            }));
+        }
+
+        document.getElementById('make-trip-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const form = event.target;
+            
+            const imageFiles = document.getElementById('trip-images').files;
+            const imagesBase64 = await filesToBase64(imageFiles);
+
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Authentication failed. Please log in again.');
+                return;
+            }
+
+            const data = {
+                from: form.elements.from.value,
+                to: form.elements.to.value,
+                requirement: form.elements.requirement.value,
+                package: form.elements.package.value,
+                price: form.elements.price.value,
+                locations: tripLocations, 
+                images: imagesBase64
+            };
+
+            try {
+                const response = await fetch('/api/guide/trips', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('Trip Package Published Successfully!');
+                    form.reset(); 
+                    tripLocations = [];
+                    renderMapLocations();
+                    // Switch to view trips tab after successful submission
+                    switchDashboardView(viewTripsSection, viewTripsBtn); 
+                } else {
+                    alert(`Failed to publish trip: ${result.message || 'Server error'}`);
+                    console.error('Trip submission error:', result);
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+                alert('An unexpected network error occurred.');
+            }
+        });
+
+
+        // --- Initialization and Event Listeners ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+             const user = JSON.parse(localStorage.getItem('user'));
+             const token = localStorage.getItem('token');
+             
+             if (!token || !user || user.role !== 'guide') {
+                alert("Access denied. Please log in as a Guide.");
+                window.location.href = 'index.html';
+                return;
+             }
+             
+             // Pre-load user data so it's ready if the profile icon is clicked
+             // Must be called BEFORE switchDashboardView to initialize guideLanguages
+             populateGuideDetails(); 
+
+             // Initialize the view to Bookings
+             switchDashboardView(bookingsSection, bookingsBtn);
+             
+             // NEW: Add event listeners for booking status tabs
+           document.querySelectorAll('.tab-booking-status').forEach(tab => {
+    tab.addEventListener('click', (e) => {
+        const status = e.currentTarget.getAttribute('data-status');
+        const tabId = e.currentTarget.id;
+        // Use the globally stored bookings
+        if (allBookings.length > 0) {
+            filterAndRenderBookings(status, tabId);
+        } else {
+            // If no bookings were fetched initially, just show the empty message for the new tab
+            setActiveTab(tabId);
+            
+            // MODIFIED: Added check for the 'Finished' status tab
+            const emptyMessage = status.includes('Pending') ? 
+                'You have no **Pending** booking requests.' : 
+                (status.includes('Accepted') ? 
+                'You have no **Approved** booking requests.' : 
+                (status.includes('Finished') ? // <--- NEW CHECK
+                'You have no **Finished** booking requests.' : // <--- NEW MESSAGE
+                'You have no **Rejected or Cancelled** booking requests.'));
+
+            guideBookingsContainer.innerHTML = `<div class="bg-blue-100 p-6 rounded-lg text-blue-800">${emptyMessage}</div>`;
+        }
+    
+                });
+            });
+        });
+
+        // Add event listeners for main dashboard tab switching
+        bookingsBtn.addEventListener('click', () => {
+            switchDashboardView(bookingsSection, bookingsBtn);
+        });
+
+        touristsBtn.addEventListener('click', () => {
+            switchDashboardView(touristsSection, touristsBtn);
+        });
+        
+        viewTripsBtn.addEventListener('click', () => {
+            switchDashboardView(viewTripsSection, viewTripsBtn);
+        });
+
+        makeTripBtn.addEventListener('click', () => {
+            switchDashboardView(makeTripSection, makeTripBtn);
+        });
+
+        // NEW Event Listener for the Profile Tab
+        profileBtnTab.addEventListener('click', () => {
+             switchDashboardView(profileSettingsSection, profileBtnTab);
+             populateGuideDetails(); 
+             renderLanguages();
+        });
+    </script>
+</body>
+</html>

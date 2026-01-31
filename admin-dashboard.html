@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==\" crossorigin=\"anonymous\" referrerpolicy=\"no-referrer\" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar style for better looks */
+        .custom-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background-color: #0d9488;
+            border-radius: 10px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #e5e7eb;
+        }
+        /* --- Custom Tab Styles --- */
+        /* Red for SOS/Red for Tourist (brown box) */
+        .tab-sos-style, .tab-tourist-style {
+            color: #4b5563; /* gray-600 */
+        }
+        .tab-sos-style.active {
+            color: #b91c1c; /* red-700 */
+            border-bottom-color: #990f0f; 
+            font-weight: 600;
+        }
+        .tab-tourist-style.active {
+            color: #b91c1c; /* red-700, using the same dark red for consistency with the requested "brown" box */
+            border-bottom-color: #990f0f;
+            font-weight: 600;
+        }
+        /* Yellow/Orange for Guide */
+        .tab-guide-style {
+            color: #4b5563; /* gray-600 */
+        }
+        .tab-guide-style.active {
+            color: #d97706; /* amber-700 */
+            border-bottom-color: #b45309; 
+            font-weight: 600;
+        }
+        /* NEW: Styles for new content tabs */
+        .tab-content-style {
+            color: #4b5563; /* gray-600 */
+        }
+        .tab-content-style.active {
+            color: #059669; /* emerald/green-600 */
+            border-bottom-color: #065f46; 
+            font-weight: 600;
+        }
+
+        /* SOS Sub-Tab Styles */
+        .sos-sub-tab.active {
+            color: #b91c1c; /* red-700 */
+            border-bottom-color: #990f0f; 
+            font-weight: 600;
+        }
+        /* Style for Cancelled sub-tab when active */
+        .sos-sub-tab[data-sos-status="cancelled"].active {
+            color: #6b7280; /* gray-500/600 */
+            border-bottom-color: #4b5563; /* darker gray */
+        }
+
+        .sos-sub-tab:not(.active) {
+            color: #4b5563; /* gray-600 */
+            border-bottom-color: transparent;
+        }
+        .sos-sub-tab:not(.active):hover {
+            color: #b91c1c; 
+            border-bottom-color: #fca5a5; /* red-300 */
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="/index.html" class="text-2xl font-bold text-teal-600">Admin Portal</a>
+            <div class="flex items-center space-x-4">
+                <span id="admin-name" class="text-gray-600 font-medium hidden md:block"></span>
+                <button id="logout-btn" class="bg-red-500 text-white py-2 px-4 rounded-full hover:bg-red-600 transition duration-300">
+                    Logout
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 flex-grow">
+        <h1 class="text-4xl font-extrabold text-gray-900 mb-10 border-b pb-3">Platform Administration</h1>
+
+        <div id="loading-spinner" class="text-center p-10">
+            <i class="fas fa-spinner fa-spin text-4xl text-teal-600"></i>
+            <p class="mt-3 text-lg text-gray-600">Loading Dashboard Data...</p>
+        </div>
+        
+        <div id="dashboard-content" class="hidden space-y-8">
+            
+            <div id="content-tabs" class="bg-white p-6 md:p-8 rounded-xl shadow-2xl">
+                <div class="mb-6 border-b border-gray-200">
+                    <div class="flex flex-wrap -mb-px" role="tablist">
+                        <button id="tab-sos" class="tab-button tab-sos-style inline-flex justify-center items-center py-3 px-6 text-sm font-medium text-center border-b-2 border-transparent rounded-t-lg hover:text-red-700 hover:border-red-300 transition duration-150 ease-in-out" type="button" role="tab" data-role="sos">
+                            <i class="fas fa-exclamation-triangle mr-2"></i> SOS Requests
+                        </button>
+                        <button id="tab-tourist" class="tab-button tab-tourist-style inline-flex justify-center items-center py-3 px-6 text-sm font-medium text-center border-b-2 border-transparent rounded-t-lg hover:text-red-700 hover:border-red-300 transition duration-150 ease-in-out" type="button" role="tab" data-role="tourist">
+                            <i class="fas fa-person-walking mr-2"></i> Tourists
+                        </button>
+                        <button id="tab-guide" class="tab-button tab-guide-style inline-flex justify-center items-center py-3 px-6 text-sm font-medium text-center border-b-2 border-transparent rounded-t-lg hover:text-amber-700 hover:border-amber-300 transition duration-150 ease-in-out" type="button" role="tab" data-role="guide">
+                            <i class="fas fa-map-location-dot mr-2"></i> Guides
+                        </button>
+                        
+                        <button id="tab-invoice" class="tab-button tab-content-style inline-flex justify-center items-center py-3 px-6 text-sm font-medium text-center border-b-2 border-transparent rounded-t-lg hover:text-green-600 hover:border-green-300 transition duration-150 ease-in-out" type="button" role="tab" data-role="invoice">
+                            <i class="fas fa-receipt mr-2"></i> Culture Invoice
+                        </button>
+                        <button id="tab-destination" class="tab-button tab-content-style inline-flex justify-center items-center py-3 px-6 text-sm font-medium text-center border-b-2 border-transparent rounded-t-lg hover:text-green-600 hover:border-green-300 transition duration-150 ease-in-out" type="button" role="tab" data-role="destination">
+                            <i class="fas fa-plane mr-2"></i> Famous Destinations
+                        </button>
+                        </div>
+                </div>
+            </div>
+
+            <section id="sos-content-container" class="bg-white p-6 md:p-8 rounded-xl shadow-2xl">
+                <h2 class="text-3xl font-bold text-red-600 mb-4 flex items-center">
+                    Emergency SOS Requests
+                </h2>
+
+                <div class="mb-6 border-b border-gray-200">
+                    <div class="flex flex-wrap -mb-px" role="tablist">
+                        <button id="sos-tab-active" class="sos-sub-tab active inline-flex justify-center items-center py-2 px-4 text-sm font-medium text-center border-b-2 transition duration-150 ease-in-out" type="button" data-sos-status="active">
+                            <i class="fas fa-bell mr-2"></i> Active Requests <span id="active-sos-count" class="ml-2 px-2 py-0.5 bg-red-100 text-red-700 rounded-full text-xs">0</span>
+                        </button>
+                        <button id="sos-tab-resolved" class="sos-sub-tab inline-flex justify-center items-center py-2 px-4 text-sm font-medium text-center border-b-2 border-transparent rounded-t-lg hover:text-red-700 hover:border-red-300 transition duration-150 ease-in-out" type="button" data-sos-status="resolved">
+                            <i class="fas fa-check-circle mr-2"></i> Resolved History <span id="resolved-sos-count" class="ml-2 px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs">0</span>
+                        </button>
+                        <button id="sos-tab-cancelled" class="sos-sub-tab inline-flex justify-center items-center py-2 px-4 text-sm font-medium text-center border-b-2 border-transparent rounded-t-lg hover:text-gray-700 hover:border-gray-300 transition duration-150 ease-in-out" type="button" data-sos-status="cancelled">
+                            <i class="fas fa-ban mr-2"></i> Cancelled Requests <span id="cancelled-sos-count" class="ml-2 px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs">0</span>
+                        </button>
+                        <button id="sos-tab-geolocation" class="sos-sub-tab inline-flex justify-center items-center py-2 px-4 text-sm font-medium text-center border-b-2 border-transparent rounded-t-lg hover:text-blue-700 hover:border-blue-300 transition duration-150 ease-in-out" type="button" data-sos-status="geolocation">
+    <i class="fas fa-map-marked-alt mr-2"></i> Tourist Geolocation
+</button>
+                    </div>
+                </div>
+                <div id="active-sos-list-container" class="sos-list-view space-y-4 max-h-96 overflow-y-auto custom-scroll">
+                    <p class="text-gray-500 p-4 text-center" id="sos-empty-message-active">No active SOS requests at the moment. Stay safe!</p>
+                </div>
+                
+                <div id="resolved-sos-list-container" class="sos-list-view hidden space-y-4 max-h-96 overflow-y-auto custom-scroll">
+                    <p class="text-gray-500 p-4 text-center" id="sos-empty-message-resolved">No resolved SOS requests in history.</p>
+                </div>
+
+                <div id="cancelled-sos-list-container" class="sos-list-view hidden space-y-4 max-h-96 overflow-y-auto custom-scroll">
+                    <p class="text-gray-500 p-4 text-center" id="sos-empty-message-cancelled">No cancelled SOS requests in history.</p>
+                </div>
+                <div id="geolocation-sos-list-container" class="sos-list-view hidden w-full h-[600px] border rounded-lg overflow-hidden">
+    <iframe src="http://localhost:3002" class="w-full h-full" frameborder="0"></iframe>
+</div>
+                </section>
+
+            <section id="user-content-container" class="hidden bg-white p-6 md:p-8 rounded-xl shadow-2xl">
+                <h2 id="user-management-title" class="text-3xl font-bold text-teal-600 mb-6 flex items-center">
+                    <i class="fas fa-users-cog mr-3"></i> User & eKYC Management
+                </h2>
+                <div class="overflow-x-auto rounded-lg shadow">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name (Username)</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                
+                                <th id="phone-no-header" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone No.</th>
+                                
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider guide-id-header hidden">Aadhar No.</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider guide-id-header hidden">License No.</th>
+<th id="pan-passport-header" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider guide-id-header hidden">PAN No.</th>                                
+                                <th id="ekyc-status-header" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ekyc-header">
+                                    eKYC Status
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-table-body" class="bg-white divide-y divide-gray-200">
+                            </tbody>
+                    </table>
+                    <p class="text-gray-500 p-4 text-center hidden" id="user-empty-message">No users found for this role.</p>
+                </div>
+            </section>
+            
+            <section id="invoice-content-container" class="hidden bg-white p-6 md:p-8 rounded-xl shadow-2xl">
+                <h2 class="text-3xl font-bold text-green-600 mb-6 flex items-center">
+                    <i class="fas fa-receipt mr-3"></i> Publish Culture Invoice
+                </h2>
+                <form id="invoice-form" class="space-y-6">
+                    <div>
+                        <label for="invoice-text" class="block text-sm font-medium text-gray-700 mb-1">Invoice Text/Description</label>
+                        <textarea id="invoice-text" rows="4" class="w-full border-gray-300 rounded-md shadow-sm focus:border-green-500 focus:ring-green-500 p-2 border" placeholder="Enter culture invoice details or description..."></textarea>
+                    </div>
+                    <div>
+                        <label for="invoice-image" class="block text-sm font-medium text-gray-700 mb-1">Invoice Image (Base64)</label>
+                        <input type="file" id="invoice-image" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
+                        <p class="mt-1 text-xs text-gray-500">Select a single image file. The content will be converted to Base64 upon submission.</p>
+                    </div>
+                    <button type="submit" id="send-invoice-btn" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150">
+                        <i class="fas fa-paper-plane mr-2"></i> Send Culture Invoice
+                    </button>
+                </form>
+            </section>
+            
+            <section id="destination-content-container" class="hidden bg-white p-6 md:p-8 rounded-xl shadow-2xl">
+                <h2 class="text-3xl font-bold text-teal-600 mb-6 flex items-center">
+                    <i class="fas fa-map-marker-alt mr-3"></i> Publish Famous Destination
+                </h2>
+                <form id="destination-form" class="space-y-6">
+                    <div>
+                        <label for="destination-title" class="block text-sm font-medium text-gray-700 mb-1">Destination Title</label>
+                        <input type="text" id="destination-title" class="w-full border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 p-2 border" placeholder="Enter destination title (e.g., Taj Mahal, Agra)" required>
+                    </div>
+                    <div>
+                        <label for="destination-text" class="block text-sm font-medium text-gray-700 mb-1">Destination Name/Description</label>
+                        <textarea id="destination-text" rows="4" class="w-full border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 p-2 border" placeholder="Enter destination name and description..." required></textarea>
+                    </div>
+                    <div>
+                        <label for="destination-primary-image" class="block text-sm font-medium text-gray-700 mb-1">Primary Image (Base64)</label>
+                        <input type="file" id="destination-primary-image" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100" required>
+                        <p class="mt-1 text-xs text-gray-500">Select one primary image.</p>
+                    </div>
+                    <div>
+                        <label for="destination-secondary-images" class="block text-sm font-medium text-gray-700 mb-1">Secondary Images (Multiple, Base64)</label>
+                        <input type="file" id="destination-secondary-images" accept="image/*" multiple class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100">
+                        <p class="mt-1 text-xs text-gray-500">Select multiple secondary images.</p>
+                    </div>
+                    <button type="submit" id="upload-destination-btn" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition duration-150">
+                        <i class="fas fa-upload mr-2"></i> Upload Famous Destination
+                    </button>
+                </form>
+            </section>
+            </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-6 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p>© 2025 Smart Tourism Platform Admin.</p>
+        </div>
+    </footer>
+
+    <div id="message-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100]">
+        <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-sm text-center relative transform transition-all">
+            <h3 id="message-title" class="text-xl font-bold mb-4 text-teal-600"></h3>
+            <p id="message-content" class="text-gray-700 mb-6"></p>
+            <button id="close-message-btn" class="bg-teal-600 text-white py-2 px-4 rounded-full hover:bg-teal-700 font-semibold transition duration-300">OK</button>
+        </div>
+    </div>
+
+    <script>
+        // --- Image to Base64 Utility ---
+        const fileToBase64 = (file) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result.split(',')[1]); // Resolve only the base64 string part
+                reader.onerror = error => reject(error);
+            });
+        };
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Global Configuration ---
+            const API_URL = 'http://localhost:3000/api'; 
+
+            // --- Element Selectors ---
+            const dashboardContent = document.getElementById('dashboard-content');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const logoutBtn = document.getElementById('logout-btn');
+            const adminName = document.getElementById('admin-name');
+
+            // Tab Content Containers
+            const sosContentContainer = document.getElementById('sos-content-container');
+            const userContentContainer = document.getElementById('user-content-container');
+            const invoiceContentContainer = document.getElementById('invoice-content-container');
+            const destinationContentContainer = document.getElementById('destination-content-container');
+            
+            const ekycHeader = document.getElementById('ekyc-status-header');
+
+            // SOS elements (UPDATED)
+            const activeSosListContainer = document.getElementById('active-sos-list-container');
+            const resolvedSosListContainer = document.getElementById('resolved-sos-list-container');
+            // NEW: Cancelled List Container
+            const cancelledSosListContainer = document.getElementById('cancelled-sos-list-container'); 
+            
+            const activeSosCount = document.getElementById('active-sos-count');
+            const resolvedSosCount = document.getElementById('resolved-sos-count');
+            // NEW: Cancelled Count
+            const cancelledSosCount = document.getElementById('cancelled-sos-count'); 
+            
+            const sosSubTabs = document.querySelectorAll('.sos-sub-tab');
+
+            // User Management elements
+            const userTableBody = document.getElementById('user-table-body');
+            const userEmptyMessage = document.getElementById('user-empty-message');
+            const tabButtons = document.querySelectorAll('.tab-button');
+
+            // Message Modal elements
+            const messageModal = document.getElementById('message-modal');
+            const closeMessageBtn = document.getElementById('close-message-btn');
+            const messageTitle = document.getElementById('message-title');
+            const messageContent = document.getElementById('message-content');
+
+            // Cache to hold fetched user data
+            let cachedUsers = { tourists: [], guides: [] };
+            let currentTabRole = 'sos'; // Default to SOS
+
+            // Cache to hold fetched SOS data (NEW)
+            let activeSOSRequests = []; 
+            let resolvedSOSRequests = []; 
+            // NEW: Cancelled SOS Cache
+            let cancelledSOSRequests = []; 
+            
+            // --- Helper Functions ---
+            const showMessage = (title, message) => {
+                messageTitle.textContent = title;
+                messageContent.textContent = message;
+                messageModal.classList.remove('hidden');
+            };
+
+            const hideMessage = () => {
+                messageModal.classList.add('hidden');
+            };
+            
+            // --- Authentication and Authorization Check ---
+            const checkAdminAuth = () => {
+                const token = localStorage.getItem('token');
+                const user = JSON.parse(localStorage.getItem('user'));
+
+                if (!token || !user || user.role !== 'admin') {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    window.location.href = '/index.html';
+                    return false;
+                }
+                adminName.textContent = `Welcome, ${user.name || user.username}`;
+                return true;
+            };
+            
+            // --- Data Fetching (Uses Live API) ---
+            const fetchData = async () => {
+                const token = localStorage.getItem('token');
+                
+                if (!token) {
+                    showMessage('Authentication Error', 'Session expired. Please log in again.');
+                    setTimeout(() => window.location.href = '/index.html', 1500);
+                    return;
+                }
+
+                try {
+                    // 1. Fetch Tourists
+                    const touristResponse = await fetch(`${API_URL}/admin/users/tourists`, { 
+                        headers: { 'Authorization': `Bearer ${token}` } 
+                    });
+                    
+                    if (!touristResponse.ok) {
+                        throw new Error("Failed to fetch tourists.");
+                    }
+                    cachedUsers.tourists = await touristResponse.json(); 
+
+                    // 2. Fetch Guides
+                    const guideResponse = await fetch(`${API_URL}/admin/users/guides`, { 
+                        headers: { 'Authorization': `Bearer ${token}` } 
+                    });
+
+                    if (!guideResponse.ok) {
+                        throw new Error("Failed to fetch guides.");
+                    }
+                    cachedUsers.guides = await guideResponse.json(); 
+                    
+                    // 3. Fetch Active SOS Requests
+                    const activeSosResponse = await fetch(`${API_URL}/admin/sos?status=active`, { 
+                        headers: { 'Authorization': `Bearer ${token}` } 
+                    });
+
+                    if (!activeSosResponse.ok) {
+                        throw new Error("Failed to fetch active SOS requests.");
+                    }
+                    activeSOSRequests = await activeSosResponse.json();
+
+                    // 4. Fetch Resolved SOS Requests 
+                    const resolvedSosResponse = await fetch(`${API_URL}/admin/sos?status=resolved`, { 
+                        headers: { 'Authorization': `Bearer ${token}` } 
+                    });
+
+                    if (!resolvedSosResponse.ok) {
+                        throw new Error("Failed to fetch resolved SOS requests.");
+                    }
+                    resolvedSOSRequests = await resolvedSosResponse.json();
+
+                    // 5. Fetch Cancelled SOS Requests (NEW)
+                    const cancelledSosResponse = await fetch(`${API_URL}/admin/sos?status=cancelled`, { 
+                        headers: { 'Authorization': `Bearer ${token}` } 
+                    });
+
+                    if (!cancelledSosResponse.ok) {
+                        throw new Error("Failed to fetch cancelled SOS requests.");
+                    }
+                    cancelledSOSRequests = await cancelledSosResponse.json();
+
+                    // Initial render of all SOS lists and counts
+                    renderActiveSOS();
+                    renderResolvedSOS();
+                    renderCancelledSOS(); // NEW
+                    
+                    switchTab(currentTabRole); // Render default tab (SOS)
+                    switchSOSTab('active'); // Default to Active SOS sub-tab
+                } catch (error) {
+                    console.error("Failed to fetch dashboard data:", error.message);
+                    showMessage('Error', `Could not load data: ${error.message}. Check the server connection.`);
+                } finally {
+                    loadingSpinner.classList.add('hidden');
+                    dashboardContent.classList.remove('hidden');
+                }
+            };
+
+            // --- SOS Rendering Functions (UPDATED to handle Cancelled) ---
+
+            const renderSOS = (sosRequest, status) => {
+                let locationDisplay = 'Location Unknown';
+                let mapUrl = '#'; 
+                
+                const requesterName = sosRequest.requesterName || sosRequest.requesterUsername || 'Unknown User';
+                const requesterPhone = sosRequest.requesterPhone; 
+                const requesterDetails = requesterPhone ? `(${requesterPhone})` : ''; 
+                
+                if (sosRequest.location) {
+                    if (typeof sosRequest.location === 'object' && sosRequest.location.latitude && sosRequest.location.longitude) {
+                        const lat = sosRequest.location.latitude;
+                        const lng = sosRequest.location.longitude;
+                        locationDisplay = `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`;
+                        mapUrl = `https://www.google.com/maps/search/?api=1&query=$${lat},${lng}`;
+                    } else if (typeof sosRequest.location === 'string') {
+                        locationDisplay = sosRequest.location;
+                        mapUrl = `https://www.google.com/maps/search/?api=1&query=$${encodeURIComponent(sosRequest.location)}`;
+                    } else {
+                        locationDisplay = 'Location data is malformed.';
+                    }
+                }
+
+                // Status-dependent details and styles
+                let resolvedDetails = '';
+                let buttonHTML = '';
+                let containerClass = '';
+                let textColorClass = '';
+
+                if (status === 'resolved') {
+                    resolvedDetails = `<p class="text-xs text-green-600 mt-1">Resolved: ${new Date(sosRequest.resolvedAt).toLocaleString()}</p>`;
+                    buttonHTML = `<span class="text-xs text-green-700 bg-green-100 py-1 px-2 rounded-full font-semibold">Rescued</span>`;
+                    containerClass = 'bg-green-50 border border-green-300';
+                    textColorClass = 'text-green-700';
+                } else if (status === 'cancelled') {
+                    resolvedDetails = `<p class="text-xs text-gray-600 mt-1">Cancelled: ${new Date(sosRequest.cancellationTimestamp).toLocaleString()}</p>`;
+                    buttonHTML = `<span class="text-xs text-gray-700 bg-gray-100 py-1 px-2 rounded-full font-semibold">Cancelled</span>`;
+                    containerClass = 'bg-gray-50 border border-gray-300';
+                    textColorClass = 'text-gray-700';
+                } else { // active
+                    buttonHTML = `<button class="ml-1 text-white bg-green-600 hover:bg-green-700 text-xs py-1 px-2 rounded-full transition duration-150" data-sos-id="${sosRequest._id}">
+                        Rescued
+                    </button>`;
+                    containerClass = 'bg-red-50 border border-red-300';
+                    textColorClass = 'text-red-700';
+                }
+
+                return `
+                    <div id="sos-item-${sosRequest._id}" class="flex items-center justify-between ${containerClass} rounded-lg p-4 shadow-sm">
+                        <div class="flex-1 min-w-0">
+                            <p class="font-bold ${textColorClass}">
+                                ${requesterName} 
+                                <span class="text-sm text-gray-600 font-normal">${requesterDetails}</span> 
+                            </p>
+                            <p class="text-sm ${textColorClass} truncate">${sosRequest.message || 'Emergency Log'}</p>
+                            <p class="text-xs text-gray-500 mt-1">
+                                <i class="fas fa-map-marker-alt mr-1"></i> 
+                                ${locationDisplay}
+                                ${mapUrl !== '#' ? 
+                                    `<a href="${mapUrl}" target="_blank" class="ml-2 ${textColorClass} hover:text-red-800 font-semibold underline">
+                                        (Open Map)
+                                    </a>` 
+                                    : ''}
+                            </p>
+                            ${resolvedDetails}
+                        </div>
+                        <div class="text-right ml-4 flex-shrink-0 flex items-center space-x-2">
+                            <span class="text-xs font-mono text-gray-500">${new Date(sosRequest.timestamp).toLocaleString()}</span>
+                            
+                            ${requesterPhone ? 
+                                `
+                                <a href="tel:${requesterPhone}" class="text-white bg-blue-500 hover:bg-blue-600 text-xs py-1 px-2 rounded-full transition duration-150" title="Call ${requesterName}">
+                                    <i class="fas fa-phone"></i> Call
+                                </a>
+                                <a href="sms:${requesterPhone}" class="text-white bg-teal-500 hover:bg-teal-600 text-xs py-1 px-2 rounded-full transition duration-150" title="Message ${requesterName}">
+                                    <i class="fas fa-message"></i> SMS
+                                </a>
+                                ` 
+                                : 
+                                `<span class="text-xs text-gray-500">No Contact</span>`
+                            }
+
+                            ${buttonHTML}
+                        </div>
+                    </div>
+                `;
+            };
+
+
+            const renderActiveSOS = () => {
+                activeSosCount.textContent = activeSOSRequests.length;
+
+                if (activeSOSRequests.length === 0) {
+                    activeSosListContainer.innerHTML = `<p class="text-gray-500 p-4 text-center" id="sos-empty-message-active">No active SOS requests at the moment. Stay safe!</p>`;
+                    return;
+                }
+                
+                activeSosListContainer.innerHTML = activeSOSRequests.map(sos => renderSOS(sos, 'active')).join('');
+                
+                // Add event listeners for the Rescued button
+                activeSosListContainer.querySelectorAll('button[data-sos-id]').forEach(button => {
+                    button.addEventListener('click', () => {
+                        resolveSOS(button.dataset.sosId);
+                    });
+                });
+            };
+
+            const renderResolvedSOS = () => {
+                resolvedSosCount.textContent = resolvedSOSRequests.length;
+
+                if (resolvedSOSRequests.length === 0) {
+                    resolvedSosListContainer.innerHTML = `<p class="text-gray-500 p-4 text-center" id="sos-empty-message-resolved">No resolved SOS requests in history.</p>`;
+                    return;
+                }
+                
+                // Render resolved items
+                resolvedSosListContainer.innerHTML = resolvedSOSRequests.map(sos => renderSOS(sos, 'resolved')).join('');
+            };
+            
+            // NEW: Render Cancelled SOS Requests
+            const renderCancelledSOS = () => {
+                cancelledSosCount.textContent = cancelledSOSRequests.length;
+
+                if (cancelledSOSRequests.length === 0) {
+                    cancelledSosListContainer.innerHTML = `<p class="text-gray-500 p-4 text-center" id="sos-empty-message-cancelled">No cancelled SOS requests in history.</p>`;
+                    return;
+                }
+                
+                // Render cancelled items
+                cancelledSosListContainer.innerHTML = cancelledSOSRequests.map(sos => renderSOS(sos, 'cancelled')).join('');
+            };
+
+            const switchSOSTab = (status) => {
+                // Remove active class from all sub-tabs and hide all list views
+                sosSubTabs.forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                document.querySelectorAll('.sos-list-view').forEach(list => {
+                    list.classList.add('hidden');
+                });
+
+                // Set active class on the selected sub-tab and show the corresponding list view
+                const selectedTab = document.querySelector(`.sos-sub-tab[data-sos-status="${status}"]`);
+                const selectedList = document.getElementById(`${status}-sos-list-container`);
+                
+                if (selectedTab) selectedTab.classList.add('active');
+                if (selectedList) selectedList.classList.remove('hidden');
+
+                // Update counts' styling based on active tab
+                activeSosCount.classList.toggle('bg-red-100', status === 'active');
+                activeSosCount.classList.toggle('text-red-700', status === 'active');
+                activeSosCount.classList.toggle('bg-gray-100', status !== 'active');
+                activeSosCount.classList.toggle('text-gray-600', status !== 'active');
+
+                resolvedSosCount.classList.toggle('bg-green-100', status === 'resolved');
+                resolvedSosCount.classList.toggle('text-green-700', status === 'resolved');
+                resolvedSosCount.classList.toggle('bg-gray-100', status !== 'resolved');
+                resolvedSosCount.classList.toggle('text-gray-600', status !== 'resolved');
+
+                // NEW: Cancelled count styling
+                cancelledSosCount.classList.toggle('bg-gray-200', status === 'cancelled');
+                cancelledSosCount.classList.toggle('text-gray-700', status === 'cancelled');
+                cancelledSosCount.classList.toggle('bg-gray-100', status !== 'cancelled');
+                cancelledSosCount.classList.toggle('text-gray-600', status !== 'cancelled');
+
+                // 4. NEW: Geolocation specific styling if needed
+    if (status === 'geolocation') {
+        selectedTab.style.color = '#1d4ed8'; // blue-700
+        selectedTab.style.borderBottomColor = '#1d4ed8';
+    } else {
+        // Reset custom color for other tabs
+        const geoTab = document.querySelector(`.sos-sub-tab[data-sos-status="geolocation"]`);
+        if(geoTab) {
+            geoTab.style.color = '';
+            geoTab.style.borderBottomColor = '';
+        }
+    }
+            };
+            
+
+            // --- Logic for SOS Resolution (Uses Live API) ---
+            const resolveSOS = async (sosId) => {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    showMessage('Error', 'Session expired. Please log in again.');
+                    return;
+                }
+
+                const sosItemElement = document.getElementById(`sos-item-${sosId}`);
+                const resolveButton = sosItemElement ? sosItemElement.querySelector('button[data-sos-id]') : null;
+
+                if (resolveButton) resolveButton.disabled = true;
+
+                try {
+                    // API call to resolve the request
+                    const response = await fetch(`${API_URL}/admin/sos/${sosId}/resolve`, {
+                        method: 'PUT',
+                        headers: { 
+                            'Authorization': `Bearer ${token}` 
+                        }
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || `Server responded with status ${response.status}`);
+                    }
+                    
+                    // --- CLIENT-SIDE STATE UPDATE (Move to Resolved) ---
+                    const index = activeSOSRequests.findIndex(sos => sos._id === sosId);
+                    if (index !== -1) {
+                        const resolvedItem = activeSOSRequests.splice(index, 1)[0];
+                        
+                        // Add server-side properties for display
+                        resolvedItem.status = 'resolved';
+                        resolvedItem.resolvedAt = new Date().toISOString(); 
+                        
+                        // Add to the resolved list cache
+                        resolvedSOSRequests.unshift(resolvedItem); // Add to the top
+                        
+                        // Re-render both lists to reflect changes
+                        renderActiveSOS();
+                        renderResolvedSOS();
+                        
+                        // Automatically switch to the Resolved History tab
+                        switchSOSTab('resolved');
+                    }
+                    
+                    showMessage('Success', `SOS request ID: ${sosId} marked as RESCUED and moved to Resolved History.`);
+                    
+                } catch (error) {
+                    console.error("SOS Resolution Failed:", error);
+                    showMessage('Resolution Failed', error.message || 'Could not communicate with the server.');
+                    if (resolveButton) resolveButton.disabled = false;
+                }
+            };
+            
+            // --- Logic for eKYC Update (Uses Live API) ---
+            const toggleEkyc = async (userId, userRole, isEkyc) => {
+                const token = localStorage.getItem('token');
+                
+                if (userRole !== 'guide') {
+                    showMessage('Action Denied', 'eKYC verification is only managed for Guide users.');
+                    const checkbox = document.querySelector(`input[data-user-id="${userId}"]`);
+                    if (checkbox) checkbox.checked = !isEkyc; 
+                    return;
+                }
+
+                const userList = cachedUsers[userRole + 's']; 
+                const userIndex = userList.findIndex(u => u._id === userId);
+                const originalEkycStatus = userIndex !== -1 ? userList[userIndex].isEkycVerified : !isEkyc; 
+                
+                if (userIndex !== -1) {
+                    userList[userIndex].isEkycVerified = isEkyc;
+                    renderUsers(userList, userRole); 
+                }
+
+                try {
+                    const response = await fetch(`${API_URL}/admin/guide/${userId}/ekyc`, {
+                        method: 'PUT',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}` 
+                        },
+                        body: JSON.stringify({ isEkycVerified: isEkyc })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Failed to update eKYC status on server.");
+                    }
+                    
+                    showMessage('Success', `Guide ${userList[userIndex].name} eKYC status updated to ${isEkyc ? 'VERIFIED' : 'PENDING'}.`);
+                    
+                } catch (error) {
+                    console.error("eKYC update failed:", error);
+                    showMessage('Update Failed', error.message || 'Could not communicate with the server.');
+                    
+                    if (userIndex !== -1) {
+                        userList[userIndex].isEkycVerified = originalEkycStatus;
+                        renderUsers(userList, userRole);
+                    }
+                }
+            };
+            
+            // --- User Rendering Functions (UPDATED FOR PHONE & EMAIL VISIBILITY) ---
+
+            const renderEkycStatus = (user) => {
+                // Only show the checkbox for Guides
+                if (user.role === 'guide') {
+                    const isVerified = user.isEkycVerified === true;
+                    const colorClass = isVerified ? 'text-green-600' : 'text-red-600';
+                    const bgColorClass = isVerified ? 'bg-green-100' : 'bg-red-100';
+                    const checkedAttribute = isVerified ? 'checked' : '';
+                    const statusText = isVerified ? 'VERIFIED' : 'PENDING';
+                    
+                    return `
+                        <div class="flex items-center space-x-2">
+                            <span class="px-3 py-1 text-xs font-semibold rounded-full ${bgColorClass} ${colorClass}">
+                                ${statusText}
+                            </span>
+                            <input type="checkbox" data-user-id="${user._id}" data-user-role="${user.role}" ${checkedAttribute} class="h-4 w-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500 toggle-ekyc-checkbox">
+                        </div>
+                    `;
+                } 
+                
+                // For Tourists, just show N/A (this cell will be hidden by renderUserRow for tourists)
+                return `<span class="px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-600">N/A</span>`;
+            };
+
+            const renderUserRow = (user) => {
+    const isGuide = user.role === 'guide';
+    const isTourist = user.role === 'tourist';
+    
+    // Updated: Remove 'isGuide' check so data is shown for both Tourists and Guides
+    const aadharNo = user.aadharNo || 'N/A';
+    const licenseNo = user.licenseNo || 'N/A';
+    const panNo = user.panNo || 'N/A';
+    
+    const phoneNo = user.phone || 'N/A';
+
+    return `
+        <tr class="hover:bg-gray-50 transition duration-150 ease-in-out">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                ${user.name || 'N/A'} (<span class="text-teal-600">${user.username}</span>)
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${user.email || 'N/A'}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 phone-no-cell">
+                ${phoneNo}
+            </td>
+            
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 guide-id-cell">
+                ${aadharNo}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 guide-id-cell">
+                ${licenseNo}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 guide-id-cell">
+                ${panNo}
+            </td>
+
+            <td class="px-6 py-4 whitespace-nowrap text-sm ekyc-cell ${isTourist ? 'hidden' : ''}">
+                ${renderEkycStatus(user)}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${isGuide ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'}">
+                    ${user.role.toUpperCase()}
+                </span>
+            </td>
+        </tr>
+    `;
+};
+
+
+          const renderUsers = (users, role) => {
+    const titleElement = document.getElementById('user-management-title');
+    const ekycHeader = document.getElementById('ekyc-status-header');
+    
+    // Select all guide-id-headers
+    const idHeaders = document.querySelectorAll('.guide-id-header');
+    
+    if (titleElement) {
+        titleElement.innerHTML = `<i class="fas fa-users-cog mr-3"></i> ${role.charAt(0).toUpperCase() + role.slice(1)} & eKYC Management`;
+    }
+    
+    // Ensure headers are shown
+    idHeaders.forEach((el, index) => {
+        el.classList.remove('hidden');
+        
+        // Dynamically change the 3rd ID header (PAN No.) to Passport No. for tourists
+        if (index === 2) { // The third element in the .guide-id-header NodeList
+            el.textContent = (role === 'tourist') ? 'Passport No.' : 'PAN No.';
+        }
+    });
+    
+    const isGuide = role === 'guide';
+    if (ekycHeader) {
+        ekycHeader.classList.toggle('hidden', !isGuide);
+    }
+    
+    if (users.length === 0) {
+        userTableBody.innerHTML = '';
+        userEmptyMessage.textContent = `No ${role} users found.`;
+        userEmptyMessage.classList.remove('hidden');
+        return;
+    }
+    
+    userEmptyMessage.classList.add('hidden');
+    userTableBody.innerHTML = users.map(user => renderUserRow(user)).join('');
+
+    if (isGuide) {
+        userTableBody.querySelectorAll('.toggle-ekyc-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                const userId = e.target.dataset.userId;
+                const userRole = e.target.dataset.userRole;
+                const isEkyc = e.target.checked;
+                toggleEkyc(userId, userRole, isEkyc);
+            });
+        });
+    }
+};
+            
+            // --- END OF MODIFIED USER CODE ---
+            
+            // --- Tab Switching Logic (Main Tabs) ---
+            const switchTab = (role) => {
+                currentTabRole = role;
+
+                // 1. Hide all main content containers
+                sosContentContainer.classList.add('hidden');
+                userContentContainer.classList.add('hidden');
+                invoiceContentContainer.classList.add('hidden'); 
+                destinationContentContainer.classList.add('hidden'); 
+
+                // 2. Show the relevant container and handle data fetching/rendering
+                if (role === 'sos') {
+                    sosContentContainer.classList.remove('hidden');
+                } else if (role === 'tourist' || role === 'guide') {
+                    userContentContainer.classList.remove('hidden');
+                    const usersToRender = cachedUsers[role + 's'] || [];
+                    renderUsers(usersToRender, role);
+                    
+                } else if (role === 'invoice') { 
+                    invoiceContentContainer.classList.remove('hidden');
+                } else if (role === 'destination') { 
+                    destinationContentContainer.classList.remove('hidden');
+                }
+                
+                // 3. Update tab styles (active state)
+                tabButtons.forEach(button => {
+                    button.classList.remove('active');
+                    if (button.dataset.role === role) {
+                        button.classList.add('active');
+                    }
+                });
+            };
+
+            // --- Form Submission Logic (Culture Invoice) ---
+            document.getElementById('invoice-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    showMessage('Error', 'Session expired. Please log in again.');
+                    return;
+                }
+
+                const text = document.getElementById('invoice-text').value;
+                const imageFile = document.getElementById('invoice-image').files[0];
+
+                if (!text || !imageFile) {
+                    showMessage('Input Required', 'Please provide both text and an image for the Culture Invoice.');
+                    return;
+                }
+                
+                document.getElementById('send-invoice-btn').disabled = true;
+
+                try {
+                    // 1. Convert file to Base64
+                    const base64Image = await fileToBase64(imageFile);
+
+                    // 2. Send data to the backend API
+                    const response = await fetch(`${API_URL}/admin/culture/invoice`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}` 
+                        },
+                        body: JSON.stringify({ 
+                            text: text, 
+                            image: base64Image 
+                        })
+                    });
+                    
+                    document.getElementById('send-invoice-btn').disabled = false;
+
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || `Server responded with status ${response.status}`);
+                    }
+                    
+                    const result = await response.json();
+
+                    showMessage('Success! 🎉', result.message || 'Culture Invoice successfully published.');
+                    // Clear the form fields upon success
+                    document.getElementById('invoice-form').reset();
+
+
+                } catch (error) {
+                    console.error("Culture Invoice Submission Failed:", error);
+                    showMessage('Submission Error', error.message || 'Could not send data to the server.');
+                    document.getElementById('send-invoice-btn').disabled = false;
+                }
+            });
+
+            // --- Form Submission Logic (Famous Destination) ---
+            document.getElementById('destination-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    showMessage('Error', 'Session expired. Please log in again.');
+                    return;
+                }
+                
+                const title = document.getElementById('destination-title').value;
+                const text = document.getElementById('destination-text').value;
+                const primaryImageFile = document.getElementById('destination-primary-image').files[0];
+                const secondaryImageFiles = document.getElementById('destination-secondary-images').files;
+
+                if (!title || !text || !primaryImageFile) { 
+                    showMessage('Input Required', 'Please provide a title, name/description, and a primary image for the destination.');
+                    return;
+                }
+                
+                document.getElementById('upload-destination-btn').disabled = true;
+
+                try {
+                    // 1. Convert images to Base64
+                    const primaryBase64 = await fileToBase64(primaryImageFile);
+                    
+                    const secondaryBase64s = [];
+                    for (const file of secondaryImageFiles) {
+                        secondaryBase64s.push(await fileToBase64(file));
+                    }
+
+                    // 2. Send data to the backend API
+                    const response = await fetch(`${API_URL}/admin/destination`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}` 
+                        },
+                        body: JSON.stringify({ 
+                            title: title, 
+                            text: text, 
+                            primaryImage: primaryBase64, 
+                            secondaryImages: secondaryBase64s 
+                        })
+                    });
+                    
+                    document.getElementById('upload-destination-btn').disabled = false;
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || `Server responded with status ${response.status}`);
+                    }
+                    
+                    const result = await response.json();
+
+                    showMessage('Success! 🌟', result.message || 'Famous Destination successfully uploaded.');
+                    // Clear the form fields upon success
+                    document.getElementById('destination-form').reset();
+
+
+                } catch (error) {
+                    console.error("Destination Submission Failed:", error);
+                    showMessage('Submission Error', error.message || 'Could not send data to the server.');
+                    document.getElementById('upload-destination-btn').disabled = false;
+                }
+            });
+
+            // --- Event Listeners ---
+            closeMessageBtn.addEventListener('click', hideMessage);
+
+            logoutBtn.addEventListener('click', () => {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/index.html'; 
+            });
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    switchTab(e.currentTarget.dataset.role);
+                });
+            });
+
+            // SOS Sub-Tab Listeners (NEW)
+            sosSubTabs.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    switchSOSTab(e.currentTarget.dataset.sosStatus);
+                });
+            });
+
+
+            // --- Initialization ---
+            if (checkAdminAuth()) {
+                fetchData();
+            }
+
+            
+        });
+    </script>
+</body>
+</html>

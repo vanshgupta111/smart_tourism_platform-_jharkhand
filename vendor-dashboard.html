@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor Dashboard - Jharkhand Tourism</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .dashboard-container::-webkit-scrollbar {
+            display: none;
+        }
+        .dashboard-container {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold text-teal-600">Jharkhand Tourism</a>
+            <div id="auth-buttons" class="flex items-center space-x-3">
+                <button id="profile-btn" class="bg-gray-200 text-teal-600 py-2 px-3 rounded-full hover:bg-gray-300 transition duration-300 shadow-md">
+                    <i class="fas fa-user-circle text-lg"></i>
+                </button>
+                <button id="logout-btn" class="bg-red-500 text-white py-2 px-4 rounded-full hover:bg-red-600 transition duration-300 shadow-md">Logout</button>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container mx-auto px-6 py-12">
+        <h2 class="text-3xl font-bold mb-8 text-gray-900">Vendor Dashboard</h2>
+
+        <div class="mb-8 flex space-x-4">
+            <button id="view-items-btn" class="bg-teal-600 text-white py-2 px-6 rounded-full hover:bg-teal-700 transition duration-300 shadow-lg">
+                <i class="fas fa-list-ul mr-2"></i>View Listings
+            </button>
+            <button id="add-item-btn" class="bg-gray-400 text-white py-2 px-6 rounded-full hover:bg-gray-500 transition duration-300 shadow-lg">
+                <i class="fas fa-plus-circle mr-2"></i>Add New Item
+            </button>
+            <button id="view-orders-btn" class="bg-gray-400 text-white py-2 px-6 rounded-full hover:bg-gray-500 transition duration-300 shadow-lg">
+                <i class="fas fa-shopping-cart mr-2"></i>View Orders
+            </button>
+        </div>
+        <div id="vendor-dashboard" class="dashboard-container space-y-8">
+            
+            <div id="view-listings-section">
+                <h3 class="text-2xl font-semibold mb-4 text-gray-800">My Product Listings</h3>
+                <div id="vendor-listings" class="bg-white p-6 rounded-xl shadow-2xl">Loading your products...</div>
+            </div>
+            <div id="add-listing-section" class="hidden">
+                <h3 class="text-2xl font-semibold mb-4 text-gray-800">Create New Listing</h3>
+                <form id="listing-form" class="bg-white p-8 rounded-xl shadow-2xl space-y-6">
+                    <input type="text" name="name" placeholder="Product Name" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition" required>
+                    <textarea name="description" placeholder="Product Description" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition" rows="3" required></textarea>
+                    <input type="number" name="price" placeholder="Price (INR)" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition" required>
+                    <div class="border-2 border-dashed border-gray-300 p-4 rounded-lg">
+                        <label for="image-upload" class="block text-sm font-medium text-gray-700 mb-2">Upload Product Image </label>
+                        <input type="file" id="image-upload" name="imageFile" accept="image/*" class="w-full file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 cursor-pointer" required>
+                    </div>
+                    <button type="submit" class="w-full bg-teal-600 text-white py-3 px-4 rounded-full hover:bg-teal-700 transition duration-300 font-semibold shadow-md">
+                        <i class="fas fa-upload mr-2"></i>Add Product
+                    </button>
+                </form>
+            </div>
+            
+            <div id="view-orders-section" class="hidden">
+                <h3 class="text-2xl font-semibold mb-4 text-gray-800">Customer Orders</h3>
+                <div id="vendor-orders" class="bg-white p-6 rounded-xl shadow-2xl">Loading your orders...</div>
+            </div>
+
+            <div id="profile-section" class="hidden">
+                <h3 class="text-2xl font-semibold mb-4 text-gray-800">My Profile & Payment Details</h3>
+                <form id="profile-form" class="bg-white p-8 rounded-xl shadow-2xl space-y-6">
+                    <div class="space-y-4">
+                        <label for="profile-name" class="block text-sm font-medium text-gray-700">Name</label>
+                        <input type="text" id="profile-name" name="name" placeholder="Your Name" class="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 focus:ring-teal-500 focus:border-teal-500 transition" required>
+                        
+                        <label for="profile-email" class="block text-sm font-medium text-gray-700">Email (Cannot be changed)</label>
+                        <input type="email" id="profile-email" name="email" placeholder="Your Email" class="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed" disabled>
+                        
+                        <label for="profile-upi-id" class="block text-sm font-medium text-gray-700">UPI ID (For Vendor Payments)</label>
+                        <input type="text" id="profile-upi-id" name="upi_id" placeholder="e.g., yourname@bank" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition">
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-teal-600 text-white py-3 px-4 rounded-full hover:bg-teal-700 transition duration-300 font-semibold shadow-md">
+                        <i class="fas fa-save mr-2"></i>Save Profile
+                    </button>
+                </form>
+            </div>
+            
+        </div>
+    </div>
+    
+    <div id="update-modal" class="fixed inset-0 bg-gray-900 bg-opacity-70 hidden items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg transform transition-all duration-300 scale-95 opacity-0">
+            <h4 class="text-2xl font-bold mb-6 text-gray-800">Update Listing Details</h4>
+            <form id="update-form" class="space-y-4">
+                <input type="hidden" id="update-listing-id">
+                <input type="text" id="update-name" placeholder="Product Name" class="w-full p-3 border border-gray-300 rounded-lg" required>
+                <textarea id="update-description" placeholder="Product Description" class="w-full p-3 border border-gray-300 rounded-lg" rows="3" required></textarea>
+                <input type="number" id="update-price" placeholder="Price (INR)" class="w-full p-3 border border-gray-300 rounded-lg" required>
+                <div class="flex justify-end space-x-4 pt-4">
+                    <button type="button" id="close-modal-btn" class="bg-gray-300 text-gray-800 py-2 px-4 rounded-full hover:bg-gray-400 transition shadow-sm">Cancel</button>
+                    <button type="submit" class="bg-green-600 text-white py-2 px-4 rounded-full hover:bg-green-700 transition shadow-md">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="status-update-modal" class="fixed inset-0 bg-gray-900 bg-opacity-70 hidden items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg transform transition-all duration-300 scale-95 opacity-0">
+            <h4 class="text-2xl font-bold mb-6 text-gray-800">Verify & Update Order Status</h4>
+            
+            <div id="order-details-summary" class="bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200">
+                <p class="text-md font-semibold text-gray-800 mb-2">Order Summary</p>
+                <p class="text-sm text-gray-600">ID: <span id="modal-order-id" class="font-mono"></span></p>
+                <p class="text-sm text-gray-600">Customer: <span id="modal-customer-name" class="font-medium text-teal-700"></span> (<span id="modal-customer-email"></span>)</p>
+                <p class="text-sm text-gray-600">Current Status: <span id="modal-current-status" class="font-medium"></span></p>
+            </div>
+            
+            <form id="otp-form" class="space-y-4">
+                <div id="otp-send-section" class="space-y-3">
+                    <p class="text-sm text-gray-700">Click the button to send a verification OTP to the customer's email.</p>
+                    <button type="button" id="send-otp-btn" class="w-full bg-teal-600 text-white py-2 px-4 rounded-full hover:bg-teal-700 transition duration-300 font-semibold shadow-md">
+                        <i class="fas fa-envelope mr-2"></i>Send OTP to Customer
+                    </button>
+                </div>
+                
+                <div id="otp-verify-section" class="hidden space-y-4 pt-4 border-t border-gray-200">
+                    <input type="text" id="otp-input" placeholder="Enter 6-digit OTP" class="w-full p-3 border border-gray-300 rounded-lg text-center tracking-wider text-lg" maxlength="6" required>
+                    
+                    <select id="new-status-select" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition" required>
+                        <option value="" disabled selected>Select New Status</option>
+                        <option value="Shipped">Shipped</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="Cancelled">Cancelled</option>
+                        <option value="Processing">Processing</option>
+                    </select>
+                    
+                    <div class="flex justify-end space-x-4 pt-2">
+                        <button type="button" id="close-status-modal-btn" class="bg-gray-300 text-gray-800 py-2 px-4 rounded-full hover:bg-gray-400 transition shadow-sm">Cancel</button>
+                        <button type="submit" id="verify-otp-btn" class="bg-green-600 text-white py-2 px-4 rounded-full hover:bg-green-700 transition shadow-md">
+                            <i class="fas fa-lock mr-2"></i>Verify OTP & Update
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="toast-container" class="fixed bottom-5 right-5 z-[100] space-y-2">
+        </div>
+
+    <script>
+       
+        const API_URL = 'http://localhost:3000/api';
+        let ALL_VENDOR_ORDERS = []; // Global store for orders
+        
+        // --- Utility Functions ---
+
+        const showToast = (message, isError = false) => {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const baseClasses = 'p-4 rounded-lg shadow-xl text-white font-medium transition-all duration-300 transform min-w-[250px]';
+            const styleClasses = isError 
+                ? 'bg-red-600 hover:bg-red-700' 
+                : 'bg-green-600 hover:bg-green-700';
+            
+            toast.className = `${baseClasses} ${styleClasses} opacity-0 translate-y-4`;
+            toast.innerHTML = `<i class="mr-2 fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i>${message}`;
+            
+            container.appendChild(toast);
+            
+            // Animate in
+            setTimeout(() => {
+                toast.classList.remove('opacity-0', 'translate-y-4');
+                toast.classList.add('opacity-100', 'translate-y-0');
+            }, 10);
+            
+            // Animate out and remove
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-4');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000); // Display for 4 seconds
+        };
+
+
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+
+        const toggleDashboardViews = (view) => {
+            const sections = {
+                'view': document.getElementById('view-listings-section'),
+                'add': document.getElementById('add-listing-section'),
+                'orders': document.getElementById('view-orders-section'),
+                'profile': document.getElementById('profile-section') 
+            };
+            const buttons = {
+                'view': document.getElementById('view-items-btn'),
+                'add': document.getElementById('add-item-btn'),
+                'orders': document.getElementById('view-orders-btn')
+            };
+            
+            // Hide all sections
+            Object.values(sections).forEach(s => s.classList.add('hidden'));
+            
+            // Show the selected section
+            if (sections[view]) {
+                sections[view].classList.remove('hidden');
+            }
+            
+            // Manage main dashboard buttons
+            Object.values(buttons).forEach(b => {
+                if(b) b.classList.replace('bg-teal-600', 'bg-gray-400')
+            });
+            // Set the active main button to teal if one is selected
+            if (view !== 'profile') {
+                const activeBtn = buttons[view];
+                if (activeBtn) activeBtn.classList.replace('bg-gray-400', 'bg-teal-600');
+            }
+        };
+
+        // --- Core Fetch Functions ---
+
+        const fetchMyListings = async (token) => {
+            try {
+                const response = await fetch(`${API_URL}/listings/my-listings`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!response.ok) throw new Error('Failed to fetch listings.');
+
+                const listings = await response.json();
+                const container = document.getElementById('vendor-listings');
+                
+                if (listings.length > 0) {
+                    container.innerHTML = listings.map(l => {
+                        const imageUrl = l.imageUrl || 'https://placehold.co/80x80/cccccc/333333?text=No+Image';
+                        
+                        return `
+                            <div class="border p-4 rounded-xl flex items-center mb-4 bg-white hover:shadow-lg transition duration-300">
+                                <img src="${imageUrl}" 
+                                    alt="${l.name}" 
+                                    class="w-20 h-20 object-cover rounded-md mr-4 border border-gray-200 shadow-sm"
+                                    onerror="this.onerror=null;this.src='https://placehold.co/80x80/cccccc/333333?text=Error+Loading'">
+                               <div class="flex-grow">
+                                    <p class="font-bold text-lg text-gray-900">${l.name}</p>
+                                    <p class="text-md text-teal-600 font-semibold">₹${l.price}</p>
+                                    <p class="text-sm text-gray-500 whitespace-normal">${l.description || 'No description provided.'}</p>
+                                </div>
+                                <div class="flex-shrink-0 space-x-2 ml-4">
+                                    <button data-id="${l._id}" data-name="${l.name}" data-desc="${l.description}" data-price="${l.price}" 
+                                            class="update-btn bg-blue-500 text-white py-1 px-3 rounded-full hover:bg-blue-600 text-sm shadow-md">
+                                        Update
+                                    </button>
+                                    <button data-id="${l._id}" class="delete-btn text-red-500 hover:text-red-700 text-sm p-1 ml-2">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    document.querySelectorAll('.update-btn').forEach(button => {
+                        button.addEventListener('click', openUpdateModal);
+                    });
+                    // Re-attach delete listeners
+                    document.querySelectorAll('.delete-btn').forEach(button => {
+                        button.addEventListener('click', deleteListing);
+                    });
+
+
+                } else {
+                    container.innerHTML = `<p class="p-4 text-gray-500">You haven't created any listings yet. Click "Add New Item" to start!</p>`;
+                }
+            } catch (error) {
+                console.error("Failed to fetch listings:", error);
+                document.getElementById('vendor-listings').innerHTML = `<p class="text-red-500 p-4">Error loading listings: ${error.message}. Please check your server status.</p>`;
+            }
+        };
+        
+        // --- START MODIFIED ORDER STATUS UPDATE AND OTP LOGIC ---
+        
+        // MODIFIED: Function to handle the API call to update the order status
+        const updateOrderStatus = async (orderId, newStatus) => {
+            const token = localStorage.getItem('token');
+            try {
+                // This assumes your backend has a PUT endpoint for updating status.
+                const response = await fetch(`${API_URL}/orders/${orderId}/status`, { 
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({})); 
+                    throw new Error(errorData.message || 'Failed to update order status');
+                }
+                
+                showToast(`Order status updated to ${newStatus}!`);
+                closeStatusModal(); // Close the new modal after successful update
+                fetchMyOrders(token); // Refresh the order list
+
+            } catch (error) {
+                showToast(`Status Update Failed: ${error.message}`, true);
+                console.error("Status Update Failed:", error);
+                throw error; // Re-throw to be caught by the verification function
+            }
+        };
+
+        // NEW: Function to request OTP from the backend
+        const sendOtpToCustomer = async (email) => {
+            const token = localStorage.getItem('token');
+            const sendBtn = document.getElementById('send-otp-btn');
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
+            
+            try {
+                // IMPORTANT: Assumes NEW backend endpoint for sending OTP to customer email
+                const response = await fetch(`${API_URL}/auth/send-otp`, { 
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ email: email })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({})); 
+                    throw new Error(errorData.message || 'Failed to send OTP.');
+                }
+                
+                showToast('OTP sent to customer\'s email. It expires in 5 minutes.', false);
+                document.getElementById('otp-send-section').classList.add('hidden');
+                document.getElementById('otp-verify-section').classList.remove('hidden');
+
+            } catch (error) {
+                showToast(`OTP Failed: ${error.message}`, true);
+                console.error("OTP Send Failed:", error);
+            } finally {
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = '<i class="fas fa-envelope mr-2"></i>Send OTP to Customer';
+            }
+        };
+
+        // NEW: Function to verify OTP before status update
+        const verifyOtpAndChangeStatus = async (orderId, customerEmail, otp, newStatus) => {
+            const token = localStorage.getItem('token');
+            const verifyBtn = document.getElementById('verify-otp-btn');
+            verifyBtn.disabled = true;
+            verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Verifying...';
+
+            try {
+                // IMPORTANT: Assumes NEW backend endpoint for verifying OTP
+                const verifyResponse = await fetch(`${API_URL}/auth/verify-otp`, { 
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ email: customerEmail, otp: otp })
+                });
+
+                if (!verifyResponse.ok) {
+                    const errorData = await verifyResponse.json().catch(() => ({})); 
+                    throw new Error(errorData.message || 'OTP verification failed or expired. Check OTP and try again.');
+                }
+                
+                showToast('OTP verified successfully! Updating status...', false);
+                // If OTP is verified, proceed with status update
+                await updateOrderStatus(orderId, newStatus);
+                
+            } catch (error) {
+                showToast(`Verification/Update Failed: ${error.message}`, true);
+                console.error("Verification/Update Failed:", error);
+            } finally {
+                verifyBtn.disabled = false;
+                verifyBtn.innerHTML = '<i class="fas fa-lock mr-2"></i>Verify OTP & Update';
+            }
+        };
+        
+        const fetchMyOrders = async (token) => {
+            const container = document.getElementById('vendor-orders');
+            container.innerHTML = 'Loading your orders...'; 
+            
+            try {
+                const response = await fetch(`${API_URL}/orders/my-vendor-orders`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({})); 
+                    throw new Error(errorData.message || 'Failed to fetch orders.');
+                }
+
+                const orders = await response.json();
+                ALL_VENDOR_ORDERS = orders; // Store orders globally
+                
+                if (orders.length > 0) {
+                    container.innerHTML = orders.map(o => {
+                        const date = new Date(o.createdAt).toLocaleDateString();
+                        
+                        let statusColor;
+                        if (o.status === 'Pending') {
+                            statusColor = 'text-yellow-600 bg-yellow-100';
+                        } else if (o.status === 'Delivered' || o.status === 'Completed') {
+                            statusColor = 'text-green-600 bg-green-100';
+                        } else {
+                            statusColor = 'text-red-600 bg-red-100';
+                        }
+                        
+                        return `
+                            <div class="border p-4 rounded-xl mb-4 bg-white hover:shadow-lg transition duration-300">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div>
+                                        <p class="font-bold text-lg text-gray-900">Order ID: <span class="font-normal text-sm text-gray-600">${o._id}</span></p>
+                                        <p class="text-xs text-gray-500">Listing ID: ${o.listingId}</p>
+                                    </div>
+                                    <span class="font-semibold text-xs ${statusColor} py-1 px-3 rounded-full">${o.status}</span>
+                                </div>
+
+                                <div class="bg-gray-50 p-3 rounded-lg my-3 border border-gray-200">
+                                    <p class="text-sm font-semibold text-gray-700">Customer Details:</p>
+                                    <p class="text-md font-bold text-teal-700">${o.touristName || 'N/A'}</p>
+                                    <p class="text-sm text-gray-600">${o.touristEmail || 'Email N/A'}</p>
+                                </div>
+                                
+                                <p class="text-md text-teal-600 font-bold mb-1">Total Amount: ₹${o.totalAmount}</p>
+                                <p class="text-sm text-gray-700">Quantity: ${o.quantity}</p>
+                                
+                                <p class="text-sm text-gray-700 mt-2"><strong>Payment Method:</strong> ${o.paymentMethod || 'N/A'}</p>
+                                <p class="text-sm text-gray-700"><strong>Shipping Address:</strong> ${o.fullAddress || 'N/A'}, ${o.city || 'N/A'}, ${o.pincode || 'N/A'}</p>
+                                <p class="text-xs text-gray-500 mt-2">Placed on: ${o.orderDate ? o.orderDate.split('T')[0] : 'N/A'}</p>
+                                
+                                <div class="mt-3 text-right">
+                                    <button data-id="${o._id}" class="update-status-btn bg-blue-500 text-white py-1 px-3 rounded-full hover:bg-blue-600 text-xs shadow-md">
+                                        Update Status
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    // ATTACH LISTENER FOR UPDATE STATUS BUTTONS
+                    document.querySelectorAll('.update-status-btn').forEach(button => {
+                        button.addEventListener('click', (e) => {
+                            const orderId = e.target.dataset.id;
+                            const order = ALL_VENDOR_ORDERS.find(o => o._id === orderId);
+                            if (order) {
+                                openStatusUpdateModal(order);
+                            } else {
+                                showToast("Order details not found.", true);
+                            }
+                        });
+                    });
+
+                } else {
+                    container.innerHTML = `<p class="p-4 text-gray-500">You have no customer orders yet.</p>`;
+                }
+            } catch (error) {
+                console.error("Failed to fetch orders:", error);
+                container.innerHTML = `<p class="text-red-500 p-4">Error loading orders: ${error.message}. Please check your server status and API URL.</p>`;
+            }
+        };
+        // --- END MODIFIED ORDER STATUS UPDATE AND OTP LOGIC ---
+
+
+        // NEW: Function to open the status update modal
+        const openStatusUpdateModal = (order) => {
+            // Populate order details
+            document.getElementById('modal-order-id').textContent = order._id;
+            document.getElementById('modal-customer-name').textContent = order.touristName || 'N/A';
+            document.getElementById('modal-customer-email').textContent = order.touristEmail || 'Email N/A';
+            document.getElementById('modal-current-status').textContent = order.status;
+            
+            // Reset form state
+            document.getElementById('otp-input').value = '';
+            document.getElementById('new-status-select').value = ''; 
+            document.getElementById('otp-verify-section').classList.add('hidden');
+            document.getElementById('otp-send-section').classList.remove('hidden');
+
+            const modal = document.getElementById('status-update-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            // Animation trigger
+            setTimeout(() => {
+                modal.querySelector('div').classList.remove('scale-95', 'opacity-0');
+                modal.querySelector('div').classList.add('scale-100', 'opacity-100');
+            }, 10);
+        };
+
+        // NEW: Function to close the status update modal
+        const closeStatusModal = () => {
+            const modal = document.getElementById('status-update-modal');
+            
+            modal.querySelector('div').classList.remove('scale-100', 'opacity-100');
+            modal.querySelector('div').classList.add('scale-95', 'opacity-0');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        };
+
+        // NEW: Function to fetch user profile details
+        const fetchProfileDetails = async (token) => {
+            const user = JSON.parse(localStorage.getItem('user'));
+            
+            try {
+                // Calls the NEW /api/users/profile/:id endpoint
+                const response = await fetch(`${API_URL}/users/profile/${user.id}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!response.ok) throw new Error('Failed to fetch profile details.');
+
+                const profile = await response.json();
+                
+                // Populate the form fields
+                document.getElementById('profile-name').value = profile.name || '';
+                document.getElementById('profile-email').value = profile.email || user.email;
+                document.getElementById('profile-upi-id').value = profile.upi_id || '';
+                
+            } catch (error) {
+                console.error("Failed to fetch profile:", error);
+                showToast(`Error fetching profile: ${error.message}`, true);
+            }
+        };
+
+        // NEW: Function to update user profile details (name and upi_id)
+        const updateProfile = async (token, updateData) => {
+            const user = JSON.parse(localStorage.getItem('user'));
+
+            try {
+                // Calls the NEW /api/users/profile/:id PUT endpoint
+                const response = await fetch(`${API_URL}/users/profile/${user.id}`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'Authorization': `Bearer ${token}` 
+                    },
+                    body: JSON.stringify(updateData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({})); 
+                    throw new Error(errorData.message || 'Failed to update profile.');
+                }
+                
+                const updatedUserResponse = await response.json();
+                
+                // Update local storage with new name and upi_id
+                localStorage.setItem('user', JSON.stringify({
+                    ...user,
+                    name: updatedUserResponse.name || user.name,
+                    upi_id: updatedUserResponse.upi_id || updateData.upi_id
+                }));
+                
+                showToast('Profile updated successfully!');
+
+            } catch (error) {
+                console.error("Update Failed:", error);
+                showToast(`Profile Update Failed: ${error.message}`, true);
+            }
+        };
+
+
+        const updateListing = async (listingId, updateData) => {
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetch(`${API_URL}/listings/${listingId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                if (!response.ok) {
+                     const errorData = await response.json().catch(() => ({})); 
+                     throw new Error(errorData.message || 'Failed to update listing');
+                }
+                
+                showToast('Listing updated successfully!');
+                closeModal(); // Use the existing function to hide the modal
+                fetchMyListings(token); // Refresh list
+            } catch (error) {
+                showToast(`Update Failed: ${error.message}`, true);
+                console.error("Update Failed:", error);
+            }
+        };
+
+        const deleteListing = async (e) => {
+            const button = e.target.closest('.delete-btn');
+            const listingId = button.dataset.id;
+            const token = localStorage.getItem('token');
+
+            if (!confirm("Are you sure you want to delete this listing?")) return;
+
+            try {
+                const response = await fetch(`${API_URL}/listings/${listingId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.message || 'Failed to delete listing.');
+                }
+
+                showToast('Listing deleted successfully!');
+                fetchMyListings(token); // Refresh the list
+            } catch (error) {
+                console.error("Deletion Failed:", error);
+                showToast(`Deletion Failed: ${error.message}`, true);
+            }
+        };
+
+
+        // --- Update Modal Logic ---
+        
+        const openUpdateModal = (e) => {
+            const button = e.target.closest('.update-btn');
+            if (!button) return;
+            
+            const id = button.dataset.id;
+            const name = button.dataset.name;
+            const desc = button.dataset.desc;
+            const price = button.dataset.price;
+            
+            // Populate modal fields
+            document.getElementById('update-listing-id').value = id;
+            document.getElementById('update-name').value = name;
+            document.getElementById('update-description').value = desc;
+            document.getElementById('update-price').value = price;
+            
+            // Show the modal
+            const modal = document.getElementById('update-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            // Trigger animation
+            setTimeout(() => {
+                modal.querySelector('div').classList.remove('scale-95', 'opacity-0');
+                modal.querySelector('div').classList.add('scale-100', 'opacity-100');
+            }, 10);
+        };
+
+        const closeModal = () => {
+            const modal = document.getElementById('update-modal');
+            
+            // Trigger animation out
+            modal.querySelector('div').classList.remove('scale-100', 'opacity-100');
+            modal.querySelector('div').classList.add('scale-95', 'opacity-0');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        };
+
+        document.getElementById('close-modal-btn').addEventListener('click', closeModal);
+
+        document.getElementById('update-form')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const listingId = document.getElementById('update-listing-id').value;
+            const updateData = {
+                name: document.getElementById('update-name').value,
+                description: document.getElementById('update-description').value,
+                price: parseFloat(document.getElementById('update-price').value)
+            };
+            
+            updateListing(listingId, updateData);
+        });
+
+        // --- Event Listeners and Initialization ---
+
+        // View Toggles
+        document.getElementById('view-items-btn').addEventListener('click', () => {
+            toggleDashboardViews('view');
+            fetchMyListings(localStorage.getItem('token')); 
+        });
+        document.getElementById('add-item-btn').addEventListener('click', () => toggleDashboardViews('add'));
+        
+        document.getElementById('view-orders-btn').addEventListener('click', () => {
+            toggleDashboardViews('orders');
+            fetchMyOrders(localStorage.getItem('token')); 
+        });
+
+        // Profile Button Listener
+        document.getElementById('profile-btn').addEventListener('click', () => {
+            toggleDashboardViews('profile');
+            fetchProfileDetails(localStorage.getItem('token')); 
+        });
+
+        // Profile Form Submission
+        document.getElementById('profile-form')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem('token');
+            
+            const updateData = {
+                name: document.getElementById('profile-name').value,
+                upi_id: document.getElementById('profile-upi-id').value.trim()
+            };
+
+            updateProfile(token, updateData);
+        });
+
+        // NEW: Close status modal button
+        document.getElementById('close-status-modal-btn')?.addEventListener('click', closeStatusModal);
+
+        // NEW: Send OTP button logic
+        document.getElementById('send-otp-btn')?.addEventListener('click', () => {
+            const customerEmail = document.getElementById('modal-customer-email').textContent;
+            if (customerEmail && customerEmail !== 'Email N/A') {
+                sendOtpToCustomer(customerEmail);
+            } else {
+                showToast('Cannot send OTP: Customer email is unavailable.', true);
+            }
+        });
+
+        // NEW: Verify OTP and Update Status form submission
+        document.getElementById('otp-form')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const orderId = document.getElementById('modal-order-id').textContent;
+            const customerEmail = document.getElementById('modal-customer-email').textContent;
+            const otp = document.getElementById('otp-input').value.trim();
+            const newStatus = document.getElementById('new-status-select').value;
+            
+            if (!otp) {
+                showToast('Please enter the OTP.', true);
+                return;
+            }
+            
+            if (!newStatus) {
+                showToast('Please select a new status.', true);
+                return;
+            }
+            
+            verifyOtpAndChangeStatus(orderId, customerEmail, otp, newStatus);
+        });
+
+        // Logout
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        });
+
+        // Add Listing Form Submission
+        document.getElementById('listing-form')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem('token');
+            const form = e.target;
+            const data = Object.fromEntries(new FormData(form).entries());
+            const imageFile = form.querySelector('#image-upload').files[0];
+
+            try {
+                if (!imageFile) throw new Error('Please select an image file.');
+                const base64Image = await toBase64(imageFile);
+                
+                data.imageUrl = base64Image;
+                delete data.imageFile; 
+
+                const response = await fetch(`${API_URL}/listings`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({})); 
+                    throw new Error(errorData.message || 'Failed to create listing');
+                }
+
+                form.reset();
+                showToast('Listing created successfully!');
+                toggleDashboardViews('view'); 
+                fetchMyListings(token); 
+            } catch (error) {
+                console.error("Creation Failed:", error);
+                showToast(`Creation Failed: ${error.message}`, true);
+            }
+        });
+           
+        // Load initial data and set initial view
+        document.addEventListener('DOMContentLoaded', () => {
+             const token = localStorage.getItem('token');
+             if (token) {
+                 fetchMyListings(token);
+                 toggleDashboardViews('view'); 
+             } else {
+                 window.location.href = 'index.html'; 
+             }
+        });
+    </script>
+</body>
+</html>

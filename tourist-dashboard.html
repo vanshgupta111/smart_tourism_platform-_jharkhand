@@ -1,0 +1,2539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tourist Dashboard - Jharkhand Tourism</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Dashboard scrollbar style */
+        .dashboard-container::-webkit-scrollbar {
+            display: none;
+        }
+        .dashboard-container {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .tab-active {
+            border-bottom: 4px solid #00a896; /* Teal-600 */
+            color: #00a896;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold text-teal-600">Jharkhand Tourism</a>
+
+            
+            
+<div class="flex space-x-4 items-center">
+    
+    <div class="relative z-50">
+        <button id="notification-btn" class="p-2 rounded-full hover:bg-gray-200 text-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-500 transition duration-150 ease-in-out">
+            <i class="fas fa-bell text-2xl"></i>
+            <span class="absolute top-1 right-1 block h-2 w-2 rounded-full ring-2 ring-white bg-red-500"></span>
+        </button>
+        
+        <div id="notification-dropdown" class="hidden absolute right-0 mt-3 w-72 max-w-xs bg-white rounded-lg shadow-xl z-50 border border-gray-200">
+            <div class="p-4 border-b border-gray-200">
+                <h3 class="font-semibold text-lg text-gray-800">Cultural Invoices</h3>
+            </div>
+            <div id="invoices-list" class="max-h-80 overflow-y-auto">
+                <a href="#" class="flex justify-between items-center p-4 hover:bg-gray-50 border-b border-gray-100">
+                    <div>
+                        <p class="text-sm font-medium text-teal-600"></p>
+                        <p class="text-xs text-gray-500 mt-1"></p>
+                    </div>
+                    <i class="fas fa-check-circle text-teal-500 text-lg"></i>
+                </a>
+                <a href="#" class="flex justify-between items-center p-4 hover:bg-gray-50 border-b border-gray-100">
+                    <div>
+                        <p class="text-sm font-medium text-orange-600"></p>
+                        <p class="text-xs text-gray-500 mt-1"></p>
+                    </div>
+                    <i class="fas fa-clock text-orange-500 text-lg"></i>
+                </a>
+                <div class="p-4 text-center text-sm text-gray-500" id="no-invoices-message" style="display: none;">No new invoices.</div>
+            </div>
+            <div class="p-2 border-t border-gray-200 text-center">
+                <a href="#" class="text-sm text-teal-600 hover:text-teal-700 font-medium">View All Invoices</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="relative z-50">
+        <button id="profile-dropdown-btn" class="text-gray-600 hover:text-teal-600 transition duration-300 p-2 rounded-full bg-white shadow-md">
+            <i class="fas fa-user-circle text-2xl"></i>
+        </button>
+    
+        <div id="profile-dropdown-content" class="absolute right-0 mt-3 w-48 bg-white rounded-lg shadow-xl z-50 hidden border border-gray-200">
+            <a href="#" data-view="my-profile" class="dropdown-link block px-4 py-2 text-gray-700 hover:bg-teal-50 transition duration-150">
+                <i class="fas fa-id-badge mr-2"></i> My Profile
+            </a>
+            <a href="#" data-view="order-history" class="dropdown-link block px-4 py-2 text-gray-700 hover:bg-teal-50 transition duration-150">
+                <i class="fas fa-box-open mr-2"></i> Order History
+            </a>
+            <a href="#" data-view="wishlist" class="dropdown-link block px-4 py-2 text-gray-700 hover:bg-teal-50 transition duration-150">
+                <i class="fas fa-heart mr-2 text-red-500"></i> My Wishlist
+            </a>
+            <hr class="my-1">
+            <button id="logout-btn-dropdown" class="w-full text-left px-4 py-2 text-red-500 hover:bg-red-50 transition duration-150 rounded-b-lg">
+                <i class="fas fa-sign-out-alt mr-2"></i> Logout
+            </button>
+        </div>
+    </div>
+
+    <button id="sos-btn" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-full shadow-lg transition duration-150 ease-in-out">
+                <i class="fas fa-exclamation-triangle mr-2"></i> SOS
+            </button>
+
+</div>
+    </header>
+
+    <div class="container mx-auto px-6 py-12">
+        <h2 class="text-3xl font-bold mb-8 text-gray-900">Tourist Services Hub</h2>
+
+        <div class="flex border-b border-gray-200 mb-8 space-x-4">
+            <button id="tab-home" data-view="home"
+                    class="tab-btn py-3 px-4 text-gray-500 hover:text-teal-600 transition duration-150">
+                <i class="fas fa-home mr-2"></i> Home
+            </button>
+            <button id="tab-marketplace" data-view="marketplace"
+                    class="tab-btn py-3 px-4 text-gray-500 hover:text-teal-600 transition duration-150 tab-active">
+                <i class="fas fa-store mr-2"></i> Buy Item (Marketplace)
+            </button>
+            <button id="tab-guide" data-view="guide-preference"
+                    class="tab-btn py-3 px-4 text-gray-500 hover:text-teal-600 transition duration-150">
+                <i class="fas fa-map-marked-alt mr-2"></i> Guide Preference
+            </button>
+             <button data-view="my-bookings"
+                    class="tab-btn py-3 px-4 text-gray-500 hover:text-teal-600 transition duration-150">
+                <i class="fas fa-ticket-alt mr-2"></i> My Bookings (Trip)
+            </button>
+            
+        </div>
+<div id="view-itinerary" class="view-content hidden">
+    <h3 class="text-2xl font-semibold mb-6 text-gray-800">Plan Your Custom Itinerary 🗺️</h3>
+    <div id="itinerary-filters" class="bg-white p-6 rounded-xl shadow-lg mb-8">
+        <h4 class="text-xl font-semibold mb-4 text-gray-800">Filter and Plan</h4>
+        <form id="itinerary-filter-form" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+                <label for="filter-location" class="block text-sm font-medium text-gray-700">Location/Destination</label>
+                <input type="text" id="filter-location" placeholder="e.g., Ranchi, Hazaribagh"
+                       class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500">
+            </div>
+            <div>
+                <label for="filter-budget" class="block text-sm font-medium text-gray-700">Max Budget (₹)</label>
+                <input type="number" id="filter-budget" placeholder="e.g., 50000" min="0"
+                       class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500">
+            </div>
+            <div>
+                <label for="filter-interest" class="block text-sm font-medium text-gray-700">Interest/Theme</label>
+                <select id="filter-interest"
+                        class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500 bg-white">
+                    <option value="">Any</option>
+                    <option value="Nature">Nature & Wildlife</option>
+                    <option value="History">History & Culture</option>
+                    <option value="Adventure">Adventure Sports</option>
+                    <option value="Religious">Religious Sites</option>
+                </select>
+            </div>
+            <div>
+                <label for="filter-days" class="block text-sm font-medium text-gray-700">Duration (Days)</label>
+                <input type="number" id="filter-days" placeholder="e.g., 3" min="1"
+                       class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500">
+            </div>
+            <div>
+                <label for="filter-persons" class="block text-sm font-medium text-gray-700">No. of Persons</label>
+                <input type="number" id="filter-persons" placeholder="e.g., 2" min="1"
+                       class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500">
+            </div>
+            <div class="md:col-span-2 lg:col-span-3 pt-3">
+                <button type="submit" id="apply-itinerary-filter-btn"
+                        class="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-indigo-700 transition duration-300 disabled:bg-gray-400">
+                    <i class="fas fa-search-location mr-2"></i> Apply Filters & Find Plans
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <h3 class="text-2xl font-semibold mb-6 text-gray-800">Available Trips & Generated Plans</h3>
+    <div id="itinerary-results" class="space-y-6">
+        <p class="text-center text-gray-500 p-8 border-2 border-dashed border-gray-300 rounded-xl">
+            Use the filters above to find suitable trip plans.
+        </p>
+    </div>
+</div>
+        <div id="content-views">
+
+            <div id="view-home" class="view-content hidden h-[calc(100vh-300px)]"> 
+                <iframe src="http://localhost:3001/" 
+                        class="w-full h-full border-0 rounded-xl shadow-lg" 
+                        title="Localhost Home Service Frame">
+                </iframe>
+            </div>
+            <div id="view-marketplace" class="view-content">
+                <h3 class="text-2xl font-semibold mb-6 text-gray-800">Available Products</h3>
+                
+                <div class="flex mb-6 space-x-3">
+                    <input type="text" id="marketplace-search-input" placeholder="Search products by name or description..."
+                           class="flex-grow p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500">
+                    <button id="marketplace-search-btn"
+                            class="bg-teal-600 text-white p-3 rounded-lg font-semibold hover:bg-teal-700 transition duration-300">
+                        <i class="fas fa-search mr-1"></i> Search
+                    </button>
+                    <button id="marketplace-clear-search-btn"
+                            class="bg-gray-400 text-white p-3 rounded-lg font-semibold hover:bg-gray-500 transition duration-300">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="product-listings" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    </div>
+                <p class="col-span-full text-center text-gray-500 mt-8" id="loading-message-marketplace">
+                    <i class="fas fa-spinner fa-spin mr-2"></i> Loading amazing products from local vendors...
+                </p>
+            </div>
+
+            <div id="view-guide-preference" class="view-content hidden">
+                <h3 class="text-2xl font-semibold mb-6 text-gray-800">Select Your Preferred Guide</h3>
+                <div id="guide-listings" class="p-8 bg-white rounded-xl shadow-lg">
+                    <p class="text-center text-gray-600 mb-4" id="loading-message-guide">
+                        <i class="fas fa-spinner fa-spin mr-2"></i> Loading available guides...
+                    </p>
+                    <div id="guide-list-container" class="space-y-4">
+                        </div>
+                </div>
+            </div>
+            
+<div id="id-popup-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[999] hidden">
+    <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4 relative">
+        
+        <button id="popup-logout-x" class="absolute top-4 right-4 text-gray-400 hover:text-red-600 transition-colors">
+            <i class="fas fa-times text-xl"></i>
+        </button>
+
+        <h3 class="text-xl font-bold text-gray-800 mb-2">Complete Your Profile</h3>
+        <p class="text-sm text-gray-600 mb-6">Please provide at least <span class="font-bold text-teal-600">two</span> of the following details to proceed. Otherwise, click the X to logout.</p>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Aadhar Number</label>
+                <input type="text" id="popup-aadhar" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" placeholder="12-digit Aadhar">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">License Number</label>
+                <input type="text" id="popup-license" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" placeholder="License Number">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">passport Number</label>
+                <input type="text" id="popup-pan" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" placeholder="PAN Number">
+            </div>
+        </div>
+
+        <button id="save-popup-ids-btn" class="w-full mt-6 bg-teal-600 text-white py-3 rounded-xl font-bold hover:bg-teal-700 transition">
+            Save and Continue
+        </button>
+    </div>
+</div>
+
+            <div id="view-guide-profile" class="view-content hidden">
+                <button id="back-to-guides-btn" class="mb-4 text-blue-600 hover:text-blue-800 transition duration-150">
+                    <i class="fas fa-arrow-left mr-2"></i> Back to All Guides
+                </button>
+                <h3 class="text-3xl font-bold mb-2 text-gray-900" id="guide-profile-name">Guide Profile</h3>
+                <p class="text-gray-500 mb-2" id="guide-profile-id"></p>
+                <div id="guide-profile-rating-display" class="mb-6">
+                    <span class="text-sm text-gray-400"><i class="fas fa-spinner fa-spin mr-1"></i> Loading guide rating...</span>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h4 class="text-xl font-semibold mb-4 border-b pb-2">Available Trip Plans</h4>
+                    <div id="guide-trips-list" class="space-y-4">
+                        </div>
+                    
+                    <div class="mt-8 pt-4 border-t border-gray-200">
+                        <h4 class="text-lg font-semibold mb-3">Book This Guide</h4>
+                        <form id="booking-form" class="space-y-4">
+                            <input type="hidden" id="booking-guide-id">
+                            
+                            <div>
+                                <label for="booking-date" class="block text-sm font-medium text-gray-700">Preferred Start Date</label>
+                                <input type="date" id="booking-date" required class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500">
+                            </div>
+                            
+                            <div>
+                                <label for="tourist-count" class="block text-sm font-medium text-gray-700">Number of Tourists</label>
+                                <input type="number" id="tourist-count" required min="1" value="1" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500">
+                            </div>
+
+                            <button type="submit" id="submit-booking-btn" class="w-full bg-teal-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-teal-700 transition duration-300 disabled:bg-gray-400">
+                                Send Booking Request
+                            </button>
+                            <p id="booking-trip-selection-status" class="text-sm text-red-500 mt-2 hidden">Please select exactly one trip plan above to book.</p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-my-profile" class="view-content hidden">
+    <h3 class="text-2xl font-semibold mb-6 text-gray-800">My Profile Details</h3>
+    <div class="bg-white p-6 rounded-xl shadow-lg max-w-lg mx-auto">
+        
+        <div id="profile-display-area">
+            <div id="profile-details-display" class="space-y-4">
+                <p class="text-gray-600">ID: <span id="profile-id" class="font-mono text-xs"></span></p>
+                <p class="text-lg"><i class="fas fa-user mr-2 text-teal-600"></i> Name: <strong id="profile-name"></strong></p>
+                <p class="text-lg"><i class="fas fa-envelope mr-2 text-teal-600"></i> Email: <strong id="profile-email"></strong></p>
+                <p class="text-lg"><i class="fas fa-phone mr-2 text-teal-600"></i> Phone: <strong id="profile-phone"></strong></p>
+                
+                <p class="text-lg"><i class="fas fa-id-card mr-2 text-teal-600"></i> Aadhaar: <strong id="profile-aadhaar"></strong></p>
+                <p class="text-lg"><i class="fas fa-id-badge mr-2 text-teal-600"></i> License: <strong id="profile-license"></strong></p>
+                <p class="text-lg"><i class="fas fa-credit-card mr-2 text-teal-600"></i> passport: <strong id="profile-pan"></strong></p>
+                
+                <p class="text-lg"><i class="fas fa-shield-alt mr-2 text-teal-600"></i> Role: <strong id="profile-role"></strong></p>
+            </div>
+
+            <form id="edit-profile-form" class="space-y-4 hidden">
+                <div>
+                    <label for="edit-name" class="block text-sm font-medium text-gray-700">Name</label>
+                    <input type="text" id="edit-name" required class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500">
+                </div>
+                <div>
+                    <label for="edit-email" class="block text-sm font-medium text-gray-700">Email (Cannot be changed)</label>
+                    <input type="email" id="edit-email" disabled class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm bg-gray-100 cursor-not-allowed">
+                </div>
+                <div>
+                    <label for="edit-phone" class="block text-sm font-medium text-gray-700">Phone</label>
+                    <input type="tel" id="edit-phone" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500">
+                </div>
+
+                <div>
+                    <label for="edit-aadhaar" class="block text-sm font-medium text-gray-700">Aadhaar Number</label>
+                    <input type="text" id="edit-aadhaar" placeholder="12-digit number" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500">
+                </div>
+                <div>
+                    <label for="edit-license" class="block text-sm font-medium text-gray-700">License Number</label>
+                    <input type="text" id="edit-license" placeholder="DL number" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500">
+                </div>
+                <div>
+                    <label for="edit-pan" class="block text-sm font-medium text-gray-700">passport Number</label>
+                    <input type="text" id="edit-pan" placeholder="passport  number" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500">
+                </div>
+
+                <button type="submit" id="save-profile-btn" class="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-green-700 transition duration-300">
+                    <i class="fas fa-save mr-1"></i> Save Changes
+                </button>
+                <button type="button" id="cancel-edit-btn" class="w-full bg-gray-400 text-white py-3 px-4 rounded-lg font-semibold hover:bg-gray-500 transition duration-300">
+                    Cancel
+                </button>
+            </form>
+        </div>
+        
+        <button id="toggle-edit-btn" class="mt-6 w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition duration-300">
+            <i class="fas fa-edit mr-1"></i> Edit Details
+        </button>
+    </div>
+</div>
+
+            <div id="view-order-history" class="view-content hidden">
+                <h3 class="text-2xl font-semibold mb-6 text-gray-800">Marketplace Order History</h3>
+                <div id="item-orders-container" class="space-y-6">
+                    <div class="text-center p-8 text-teal-500"><i class="fas fa-spinner fa-spin mr-2"></i> Loading your item orders...</div>
+                </div>
+            </div>
+            <div id="view-wishlist" class="view-content hidden">
+                <h3 class="text-2xl font-semibold mb-6 text-gray-800">My Liked Items (Wishlist) ❤️</h3>
+                <div id="wishlist-items-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <p class="col-span-full text-center text-gray-500 p-8 border-2 border-dashed border-gray-300 rounded-xl">
+                        You currently have no items in your wishlist. Like an item in the Marketplace to add it here.
+                    </p>
+                </div>
+            </div>
+
+<div id="id-popup-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[200] hidden">
+    <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4 relative">
+        <button id="close-popup-logout" class="absolute top-4 right-4 text-gray-400 hover:text-red-600 transition text-xl">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <h3 class="text-xl font-bold text-red-600 mb-2">Profile Incomplete</h3>
+        <p class="text-sm text-gray-600 mb-6">Security policy requires at least <span class="font-bold underline">two</span> identification details. Click 'X' to logout.</p>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Aadhar Number</label>
+                <input type="text" id="popup-aadhar" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" placeholder="12-digit Aadhar">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">License Number</label>
+                <input type="text" id="popup-license" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" placeholder="License Number">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">passport Number</label>
+                <input type="text" id="popup-pan" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" placeholder="passport Number">
+            </div>
+        </div>
+
+        <button id="save-popup-ids-btn" class="w-full mt-6 bg-teal-600 text-white py-3 rounded-xl font-bold hover:bg-teal-700 transition">
+            Verify and Save
+        </button>
+    </div>
+</div>
+            
+            <div id="view-my-bookings" class="view-content hidden">
+                <h3 class="text-2xl font-semibold mb-6 text-gray-800">My Trip Booking Status</h3>
+                <div id="tourist-bookings-container" class="space-y-6">
+                    <div class="text-center p-8 text-teal-500"><i class="fas fa-spinner fa-spin mr-2"></i> Loading your bookings...</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+    <div id="rating-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 z-[110] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 space-y-4 transform transition-all">
+            <h4 class="text-xl font-bold text-gray-800 border-b pb-2">Rate <span id="rating-entity-name"></span> (<span id="rating-entity-type-display"></span>)</h4>
+            
+            <form id="rating-form" class="space-y-4">
+                <input type="hidden" id="modal-entity-id">
+                <input type="hidden" id="modal-entity-type">
+
+                <div>
+                    <label for="rating-stars" class="block text-sm font-medium text-gray-700 mb-2">Your Rating</label>
+                    <div id="rating-stars" class="flex justify-start space-x-1 text-3xl">
+                        </div>
+                    <input type="hidden" id="rating-value" required>
+                </div>
+
+                <div>
+                    <label for="rating-feedback" class="block text-sm font-medium text-gray-700">Feedback (Optional)</label>
+                    <textarea id="rating-feedback" rows="3" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-teal-500 focus:border-teal-500" placeholder="Tell us about your experience..."></textarea>
+                </div>
+
+                <div class="flex justify-end space-x-3">
+                    <button type="button" id="close-rating-modal-btn" class="bg-gray-400 text-white py-2 px-4 rounded-lg font-semibold hover:bg-gray-500 transition duration-300">
+                        Cancel
+                    </button>
+                    <button type="submit" id="submit-rating-btn" class="bg-teal-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-teal-700 transition duration-300">
+                        Submit Rating
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="sos-overlay" class="hidden fixed inset-0 bg-red-800 bg-opacity-95 z-[100] flex flex-col items-center justify-center p-4 transition-opacity duration-300">
+    <div class="text-center text-white">
+        <i id="sos-status-icon" class="fas fa-ambulance text-6xl mb-4 animate-pulse"></i>
+        <h2 id="sos-status-message" class="text-3xl font-bold mb-4">SOS Sent Successfully! Help is being dispatched.</h2>
+        
+        <p class="text-xl mb-8"><span id="sos-countdown-text">Guide notification window closing in <span id="sos-countdown" class="font-bold">60</span> seconds.</span></p>
+        
+        <button id="cancel-sos-btn-overlay" class="bg-white text-red-600 hover:bg-gray-100 font-semibold py-3 px-8 rounded-full shadow-xl transition duration-150 ease-in-out">
+            Cancel SOS
+        </button>
+    </div>
+</div>
+    <div id="toast-container" class="fixed bottom-5 right-5 z-[100] space-y-2">
+    </div>
+
+    <div id="id-verification-modal" class="fixed inset-0 bg-black bg-opacity-80 z-[200] hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
+        <h4 class="text-xl font-bold text-red-600 mb-2">ID Verification Required</h4>
+        <p class="text-sm text-gray-600 mb-4">Please provide at least <span class="font-bold underline">two</span> identification details to proceed.</p>
+        
+        <div class="space-y-4">
+            <input type="text" id="popup-aadhar" placeholder="Aadhar Number" class="w-full p-3 border rounded-lg">
+            <input type="text" id="popup-license" placeholder="License Number" class="w-full p-3 border rounded-lg">
+            <input type="text" id="popup-pan" placeholder="PAN Number" class="w-full p-3 border rounded-lg">
+            
+            <button id="submit-popup-ids" class="w-full bg-teal-600 text-white py-3 rounded-lg font-bold hover:bg-teal-700">
+                Save and Continue
+            </button>
+        </div>
+    </div>
+</div>
+    
+    <script>
+        const API_URL = '/api'; 
+        const touristBookingsContainer = document.getElementById('tourist-bookings-container'); 
+        let allListingsCache = []; 
+
+        // --- NEW: SOS Functionality ---
+// Variable declarations are outside the DOMContentLoaded for scope access
+let sosTimer;
+let sosBtn, sosOverlay, cancelSosBtn, sosStatusMessage, sosStatusIcon, sosCountdown, sosCountdownText;
+
+
+/**
+ * Helper to get the user's current location via the browser's Geolocation API.
+ * @returns {Promise<Object|null>} {latitude, longitude} or null if failed.
+ */
+function getTouristLocation() {
+    return new Promise(resolve => {
+        if (!navigator.geolocation) {
+            console.warn('Geolocation is not supported by this browser.');
+            return resolve(null);
+        }
+        
+        navigator.geolocation.getCurrentPosition(
+            position => {
+                resolve({
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude
+                });
+            }, 
+            error => {
+                // Log the specific reason for failure
+                console.error('Geolocation Error Code:', error.code, 'Message:', error.message);
+                resolve(null);
+            }, 
+            {
+                enableHighAccuracy: true,
+                timeout: 10000, // Increased to 10 seconds
+                maximumAge: 0
+            }
+        );
+    });
+}
+
+
+/**
+ * Sends the SOS signal to the backend (API call: POST /api/sos/send).
+ */
+/**
+ * Sends the SOS signal to the backend (API call: POST /api/sos/send).
+ * Timer is now for notification window only, NOT for auto-cancellation.
+ */
+async function sendSOS() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        showToast("Please log in to use the SOS feature.", true);
+        return;
+    }
+    
+    // 1. Update UI to "Initializing..."
+    sosStatusMessage.textContent = "Retrieving GPS location... Please wait.";
+    sosStatusIcon.className = "fas fa-sync-alt text-6xl mb-4 animate-spin";
+    cancelSosBtn.style.display = 'none';
+    
+    // Reset countdown text and show overlay
+    sosCountdownText.style.display = 'block';
+    sosCountdownText.innerHTML = `Searching for your coordinates...`;
+    sosOverlay.classList.remove('hidden');
+    
+    // 2. Get user location (Wait for the promise to resolve)
+    const location = await getTouristLocation();
+
+    // 3. VALIDATION: Critical fix for the 400 error
+    // If location is null, we stop here and tell the user why.
+    if (!location || !location.latitude || !location.longitude) {
+        console.error("Location retrieval failed.");
+        
+        sosStatusMessage.textContent = "SOS Failed: Could not get GPS coordinates.";
+        sosStatusIcon.className = "fas fa-exclamation-triangle text-6xl mb-4 text-red-500";
+        sosCountdownText.innerHTML = "Please ensure Location Permissions are enabled for this site and your GPS is on.";
+        
+        // Hide overlay after 5 seconds so they can try again
+        setTimeout(() => {
+            sosOverlay.classList.add('hidden');
+        }, 5000);
+        
+        showToast("Location data missing. Check browser permissions.", true);
+        return; // Exit the function; do not fetch.
+    }
+
+    // 4. Update UI to "Sending..." now that we have location
+    sosStatusMessage.textContent = "Location found! Transmitting SOS signal...";
+
+    try {
+        const response = await fetch('/api/sos/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            // Explicitly sending the valid location object
+            body: JSON.stringify({
+                latitude: location.latitude,
+                longitude: location.longitude
+            }) 
+        });
+        
+        const data = await response.json();
+
+        if (response.ok || response.status === 202) { 
+            showToast("SOS signal transmitted and logged.", false);
+            
+            // Set final success UI
+            sosStatusMessage.textContent = "SOS Sent Successfully! Help is being dispatched.";
+            sosStatusIcon.className = "fas fa-ambulance text-6xl mb-4 animate-pulse";
+            cancelSosBtn.style.display = 'block';
+
+            let timeRemaining = 60; 
+            sosCountdownText.innerHTML = `Guide notification window closing in <span id="sos-countdown" class="font-bold">60</span> seconds.`;
+            const currentSosCountdown = document.getElementById('sos-countdown');
+
+            // Start the 1-minute countdown
+            const sosTimer = setInterval(() => {
+                timeRemaining--;
+                if (currentSosCountdown) currentSosCountdown.textContent = timeRemaining;
+
+                if (timeRemaining <= 0) {
+                    clearInterval(sosTimer);
+                    sosStatusMessage.textContent = "ATTENTION: SOS Alert is still active!";
+                    sosStatusIcon.className = "fas fa-exclamation-triangle text-6xl mb-4 text-yellow-400";
+                    sosCountdownText.innerHTML = "The alert remains active until manually cancelled.";
+                }
+            }, 1000);
+
+        } else {
+            // Handle specific logic for existing SOS or server-side validation errors
+            if ((response.status === 400 || response.status === 200) && data.status) {
+                throw new Error(data.message || `An active SOS is already registered.`);
+            }
+            throw new Error(data.message || "Server rejected SOS request.");
+        }
+    } catch (error) {
+        console.error("SOS Send Error:", error);
+        
+        sosStatusMessage.textContent = `SOS Failed: ${error.message}`;
+        sosStatusIcon.className = "fas fa-exclamation-circle text-6xl mb-4 text-red-500";
+        cancelSosBtn.style.display = 'none';
+        sosCountdownText.style.display = 'none';
+        
+        setTimeout(() => sosOverlay.classList.add('hidden'), 5000);
+        showToast(error.message, true);
+    }
+}
+
+/**
+ * Cancels the SOS state on the server and updates the UI (API call: POST /api/sos/cancel).
+ * @param {Event} event - The click event (or null if called internally).
+ * @param {string} reason - The reason for cancellation ('user', 'timed-out').
+ */
+/**
+ * Cancels the SOS state on the server and updates the UI (API call: POST /api/sos/cancel).
+ * This function is now ONLY called manually by the user.
+ */
+async function cancelSOS(event) {
+    if (event) event.preventDefault();
+    clearInterval(sosTimer);
+    
+    const token = localStorage.getItem('token');
+
+    // Show cancelling status
+    sosStatusMessage.textContent = "Cancelling SOS...";
+    sosStatusIcon.className = "fas fa-sync-alt text-6xl mb-4 animate-spin";
+    cancelSosBtn.style.display = 'none';
+    sosCountdownText.style.display = 'none'; // Hide text during cancellation
+
+    if (token) {
+        try {
+            const response = await fetch('/api/sos/cancel', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.message || "Failed to cancel SOS on the server.");
+            }
+
+            // Successful cancellation UI update
+            sosStatusMessage.textContent = "SOS Cancelled! Dispatch aborted.";
+            sosStatusIcon.className = "fas fa-times-circle text-6xl mb-4 text-red-400";
+            showToast("SOS has been successfully cancelled.", false);
+
+        } catch (error) {
+            console.error("SOS Cancel Error:", error);
+            sosStatusMessage.textContent = `Cancellation Failed: ${error.message}`;
+            sosStatusIcon.className = "fas fa-exclamation-triangle text-6xl mb-4 text-yellow-400";
+            showToast(`Warning: ${error.message}`, true);
+        }
+    } else {
+        // No token case: just update UI to reflect local cancellation
+        sosStatusMessage.textContent = "SOS Cancelled Locally.";
+        sosStatusIcon.className = "fas fa-times-circle text-6xl mb-4 text-red-400";
+    }
+
+    // Hide the final status message after 5 seconds and reset the view
+    setTimeout(() => {
+        sosOverlay.classList.add('hidden');
+        // Reset countdown element text for next use
+        sosCountdownText.innerHTML = `Guide notification window closing in <span id="sos-countdown" class="font-bold">60</span> seconds.`;
+    }, 5000);
+}
+// -----------------------------------------------------------
+// Important: Place the event listeners inside the DOMContentLoaded block 
+// to ensure the elements exist before the code tries to get them.
+// -----------------------------------------------------------
+document.addEventListener('DOMContentLoaded', () => {
+    // Re-declare and initialize all elements here to ensure they exist
+    sosBtn = document.getElementById('sos-btn');
+    sosOverlay = document.getElementById('sos-overlay');
+    cancelSosBtn = document.getElementById('cancel-sos-btn-overlay');
+    sosStatusMessage = document.getElementById('sos-status-message');
+    sosStatusIcon = document.getElementById('sos-status-icon');
+    sosCountdown = document.getElementById('sos-countdown');
+    sosCountdownText = document.getElementById('sos-countdown-text');
+
+    // Attach event listeners
+    if (sosBtn) {
+        sosBtn.addEventListener('click', sendSOS);
+    }
+    if (cancelSosBtn) {
+        cancelSosBtn.addEventListener('click', (e) => cancelSOS(e, 'user'));
+    }
+
+    // ... your other DOMContentLoaded logic (like fetching initial data) should follow here
+    const token = localStorage.getItem('token');
+    
+    // Default to marketplace view and fetch listings
+    toggleDashboardViews('marketplace');
+
+    if (!token) {
+        showToast("You are viewing as a guest. Please log in to place an order or booking.", true);
+    }
+});
+// --- END: SOS Functionality ---
+
+        // --- Utility Functions ---
+
+        const showToast = (message, isError = false) => {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const baseClasses = 'p-4 rounded-lg shadow-xl text-white font-medium transition-all duration-300 transform min-w-[250px]';
+            const styleClasses = isError 
+                ? 'bg-red-600 hover:bg-red-700' 
+                : 'bg-green-600 hover:bg-green-700';
+            
+            toast.className = `${baseClasses} ${styleClasses} opacity-0 translate-y-4`;
+            toast.innerHTML = `<i class="mr-2 fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i>${message}`;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.remove('opacity-0', 'translate-y-4');
+                toast.classList.add('opacity-100', 'translate-y-0');
+            }, 10);
+            
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-4');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000); 
+        };
+
+        // --- NEW WISHLIST FUNCTIONS ---
+
+        /**
+         * Retrieves the list of listing IDs from localStorage.
+         * @returns {Array<string>} An array of listing IDs.
+         */
+       const fetchWishlistIds = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) return []; // Cannot fetch if not logged in
+
+            try {
+                const response = await fetch(`${API_URL}/tourist/wishlist`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    // Log error but treat as empty list for display
+                    console.error("Failed to fetch wishlist from server.");
+                    return [];
+                }
+
+                const data = await response.json();
+                return data.wishlistIds || [];
+
+            } catch (error) {
+                console.error("Network error fetching wishlist:", error);
+                return [];
+            }
+        };
+
+        /**
+         * Toggles a listing ID in the localStorage wishlist.
+         * @param {string} listingId The ID of the listing to add or remove.
+         * @returns {boolean} True if added, false if removed.
+         */
+        const toggleWishlistItem = async (listingId) => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showToast('Please log in to manage your wishlist.', true);
+                return null;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/tourist/wishlist/toggle`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}` 
+                    },
+                    body: JSON.stringify({ listingId })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to toggle wishlist item.');
+                }
+                
+                const data = await response.json();
+                showToast(data.message, false);
+                return data.action; // 'added' or 'removed'
+
+            } catch (error) {
+                console.error("Error toggling wishlist item:", error);
+                showToast(`Wishlist Error: ${error.message}`, true);
+                return null;
+            }
+        };
+        
+        /**
+         * Renders the wishlist items into the dedicated view.
+         */
+       /**
+         * Renders the wishlist items into the dedicated view.
+         */
+        const renderWishlist = async () => { // ADD ASYNC
+            const container = document.getElementById('wishlist-items-container');
+            
+            // Show loading state while fetching IDs
+            container.innerHTML = `<p class="col-span-full text-center text-teal-500 p-8 border-2 border-dashed border-teal-300 rounded-xl">
+                <i class="fas fa-sync-alt fa-spin mr-2"></i> Loading your personalized wishlist...
+            </p>`;
+            
+            // 1. Fetch the IDs from the server
+            const wishlistIds = await fetchWishlistIds(); 
+            
+            if (wishlistIds.length === 0) {
+                container.innerHTML = `<p class="col-span-full text-center text-gray-500 p-8 border-2 border-dashed border-gray-300 rounded-xl">
+                    You currently have no items in your wishlist. Like an item in the Marketplace to add it here.
+                </p>`;
+                return;
+            }
+            
+            // 2. Filter all cached listings by the IDs in the wishlist
+            const wishlistItems = allListingsCache.filter(l => wishlistIds.includes(l._id));
+            
+            if (wishlistItems.length === 0) {
+                 // The cache is loaded but none match the IDs (e.g. they were deleted from API)
+                 container.innerHTML = `<p class="col-span-full text-center text-gray-500 p-8 border-2 border-dashed border-gray-300 rounded-xl">
+                    The items in your wishlist could not be found or the Marketplace items have not yet loaded.
+                </p>`;
+                 return;
+            } 
+
+            // 3. Render the items (The rest of the code remains similar)
+            container.innerHTML = wishlistItems.map(l => {
+                 const imageUrl = l.imageUrl || 'https://placehold.co/400x300/e5e7eb/374151?text=Jharkhand+Product';
+                 const formattedPrice = `₹${Number(l.price).toLocaleString('en-IN')}`;
+                 
+                 // Wishlist button will be 'liked' by default in this view (solid heart)
+                 const likeButtonHtml = `<button 
+                    class="wishlist-btn p-2 rounded-full text-red-500 hover:text-red-600 transition duration-150" 
+                    data-listing-id="${l._id}"
+                    aria-label="Remove from Wishlist">
+                    <i id="like-icon-wishlist-${l._id}" class="fas fa-heart text-2xl"></i>
+                 </button>`;
+
+                 return `
+                    <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 flex flex-col justify-between" id="listing-card-wishlist-${l._id}">
+                        <div class="p-4">
+                             <div class="h-40 bg-gray-200 rounded-lg mb-4 overflow-hidden" style="background-image: url('${imageUrl}'); background-size: cover; background-position: center;">
+                            </div>
+                            <div class="flex justify-between items-start mb-2">
+                                <h4 class="text-xl font-bold text-gray-900 line-clamp-2">${l.name}</h4>
+                                <span class="text-lg font-semibold text-teal-600">${formattedPrice}</span>
+                            </div>
+                            <p class="text-sm text-gray-600 line-clamp-3">${l.description || 'No description provided.'}</p>
+                            
+                            <div id="rating-listing-${l._id}" class="mt-3 mb-4">
+                                <span class="text-sm text-gray-400"><i class="fas fa-spinner fa-spin mr-1"></i> Loading rating...</span>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 border-t border-gray-100 flex items-center space-x-3">
+                            ${likeButtonHtml}
+                            <div class="flex items-center space-x-2">
+                                <label for="qty-${l._id}-wishlist" class="text-sm text-gray-700">Qty:</label>
+                                <input type="number" id="qty-${l._id}-wishlist" value="1" min="1" class="w-16 p-2 border border-gray-300 rounded-lg text-center focus:ring-teal-500" data-listing-id="${l._id}" data-price="${l.price}">
+                            </div>
+                            <button class="order-btn-wishlist flex-grow bg-teal-600 text-white py-2 px-4 rounded-full hover:bg-teal-700 transition duration-300 font-semibold shadow-lg" data-listing-id="${l._id}" data-price="${l.price}">
+                                <i class="fas fa-shopping-cart mr-1"></i> Buy Item
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Attach event listeners for the wishlist-specific 'Buy Item' buttons
+            document.querySelectorAll('.order-btn-wishlist').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const listingId = e.currentTarget.dataset.listingId;
+                    const price = parseFloat(e.currentTarget.dataset.price);
+                    const quantityInput = document.getElementById(`qty-${listingId}-wishlist`);
+                    const quantity = parseInt(quantityInput.value);
+                    handleOrder(listingId, quantity, price); // Reuse existing handleOrder
+                });
+            });
+
+            // Attach event listeners for the 'Remove from Wishlist' buttons
+            document.querySelectorAll('.wishlist-btn').forEach(button => {
+                button.addEventListener('click', async (e) => { // Make listener async
+                    const listingId = e.currentTarget.dataset.listingId;
+                    const action = await toggleWishlistItem(listingId); // AWAIT API CALL
+                    
+                    if (action === 'removed') {
+                        // Re-render the wishlist view to remove the item instantly
+                        renderWishlist(); 
+                        // Also update the icon in the marketplace if it is currently visible
+                        const marketplaceButtonIcon = document.querySelector(`#like-icon-marketplace-${listingId}`);
+                        if (marketplaceButtonIcon) {
+                            // Switch from solid heart to regular heart
+                            marketplaceButtonIcon.classList.remove('fas', 'text-red-500');
+                            marketplaceButtonIcon.classList.add('far', 'text-gray-400', 'hover:text-red-500');
+                        }
+                    }
+                });
+            });
+            
+            // Fetch ratings for items in the wishlist view
+            wishlistItems.forEach(listing => {
+                const ratingElement = document.getElementById(`rating-listing-${listing._id}`);
+                if (ratingElement) {
+                    fetchAndDisplayAverageRating('listing', listing._id, ratingElement);
+                }
+            });
+        };
+/**
+ * Fetches Cultural Invoices from the API and renders them in the notification dropdown.
+ */
+/**
+ * Fetches Cultural Invoices from the API and renders them in the notification dropdown.
+ */
+/**
+ * Fetches Cultural Invoices from the API and renders them in the notification dropdown.
+ */
+async function fetchAndRenderCulturalInvoices() {
+    const invoicesContainer = document.getElementById('invoices-list');
+    const notificationDot = notificationBtn.querySelector('span');
+    const token = localStorage.getItem('token');
+
+    // Handle Unauthenticated User
+    if (!token) {
+        invoicesContainer.innerHTML = `
+            <div class="p-4 text-center text-sm text-gray-700 font-medium">
+                Please log in to view your invoices.
+            </div>`;
+        if (notificationDot) notificationDot.style.display = 'none';
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/tourist/culture/invoices`, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch cultural invoices. Status: ${response.status}`);
+        }
+
+        const invoices = await response.json();
+        
+        if (invoices.length === 0) {
+            invoicesContainer.innerHTML = `
+                <div class="p-4 text-center text-sm text-gray-500">
+                    No new cultural invoices found.
+                </div>`;
+            if (notificationDot) notificationDot.style.display = 'none';
+            return;
+        }
+
+        // Render the Invoices, focusing only on Title, Text, and Image
+        invoicesContainer.innerHTML = invoices.map(invoice => {
+            
+            // Use invoice.text for the main content
+            const invoiceDescription = invoice.text || 'No specific message provided.';
+            
+            // Image styling
+            const imageStyle = invoice.imageBase64 ? `background-image: url('data:image/jpeg;base64,${invoice.imageBase64}'); background-size: cover; background-position: center;` : 'background-color: #f3f4f6;';
+
+            return `
+                <a href="#" class="flex items-start p-3 hover:bg-gray-50 border-b border-gray-100">
+                    <div class="flex items-start space-x-3 w-full">
+                        <div class="w-10 h-10 rounded-full flex-shrink-0" style="${imageStyle}">
+                            ${!invoice.imageBase64 ? '<i class="fas fa-file-invoice text-xl text-gray-500 pt-2 pl-2"></i>' : ''}
+                        </div>
+                        
+                        <div>
+                            <p class="text-sm font-semibold text-gray-800">${invoice.title || 'Cultural Message'}</p>
+                            
+                            <p class="text-xs text-gray-700 mt-1">${invoiceDescription}</p> 
+                        </div>
+                    </div>
+                </a>
+            `;
+        }).join('');
+
+        if (notificationDot) notificationDot.style.display = 'block';
+
+    } catch (error) {
+        console.error("Error fetching invoices:", error);
+        invoicesContainer.innerHTML = `
+            <div class="p-4 text-center text-sm text-red-500">
+                Network Error: Could not load data.
+            </div>`;
+        if (notificationDot) notificationDot.style.display = 'none';
+    }
+}    
+const notificationBtn = document.getElementById('notification-btn');
+const notificationDropdown = document.getElementById('notification-dropdown');
+
+
+function toggleNotificationDropdown() {
+    
+    const notificationBtn = document.getElementById('notification-btn');
+    const notificationDropdown = document.getElementById('notification-dropdown');
+
+    if (!notificationDropdown) return; 
+
+    notificationDropdown.classList.toggle('hidden');
+    
+    document.getElementById('profile-dropdown-content').classList.add('hidden'); 
+
+    if (!notificationDropdown.classList.contains('hidden')) {
+        if (typeof fetchAndRenderCulturalInvoices === 'function') {
+            fetchAndRenderCulturalInvoices();
+        }
+        
+        const notificationDot = notificationBtn ? notificationBtn.querySelector('span') : null;
+        if (notificationDot) {
+             notificationDot.style.display = 'none';
+        }
+    }
+}
+        
+        function getStarRatingHtml(rating, count) {
+            if (typeof rating !== 'number' || rating < 0 || rating > 5) rating = 0;
+            if (typeof count !== 'number' || count < 0) count = 0;
+            
+            const fullStar = '<i class="fa-solid fa-star text-yellow-500"></i>';
+            const halfStar = '<i class="fa-solid fa-star-half-stroke text-yellow-500"></i>';
+            const emptyStar = '<i class="fa-regular fa-star text-gray-300"></i>';
+
+            let stars = '';
+            let remaining = rating;
+
+            for (let i = 0; i < 5; i++) {
+                if (remaining >= 1) {
+                    stars += fullStar;
+                    remaining--;
+                } else if (remaining > 0) {
+                   
+                    stars += (remaining >= 0.25 && remaining < 0.75) ? halfStar : (remaining >= 0.75 ? fullStar : emptyStar);
+                    remaining = 0;
+                } else {
+                    stars += emptyStar;
+                }
+            }
+
+            return `<div class="flex items-center space-x-1 text-sm">
+                        <span class="font-bold text-yellow-600">${rating.toFixed(1)}</span>
+                        <div>${stars}</div>
+                        <span class="text-xs text-gray-500">(${count} reviews)</span>
+                    </div>`;
+        }
+
+      
+        const saveItineraryToDB = async (itineraryData) => {
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user'));
+
+            if (!token || !user) return false;
+
+            const payload = {
+                ...itineraryData,
+                touristId: user._id,
+                touristName: user.name,
+                dateGenerated: new Date().toISOString()
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/itineraries`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'Authorization': `Bearer ${token}` 
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({})); 
+                    throw new Error(errorData.message || 'Failed to save itinerary.');
+                }
+                return true;
+
+            } catch (error) {
+                console.error("Save Itinerary Failed:", error);
+                return false;
+            }
+        };
+
+       
+        const renderItineraryResults = (results) => {
+            const container = document.getElementById('itinerary-results');
+            if (results.length === 0) {
+                container.innerHTML = `<p class="text-center text-gray-500 p-8 border-2 border-dashed border-gray-300 rounded-xl">
+                    No suitable trips or generated plans found based on your filters.
+                </p>`;
+                return;
+            }
+
+            container.innerHTML = results.map(item => {
+                const stopsString = Array.isArray(item.locations) && item.locations.length > 0 
+                    ? item.locations.join(' → ')
+                    : 'Not specified';
+                const formattedCost = item.totalCost 
+                    ? `₹${Number(item.totalCost).toLocaleString('en-IN')}` 
+                    : 'N/A';
+                const badge = item.generated 
+                    ? '<span class="px-3 py-1 text-xs font-semibold rounded-full bg-pink-100 text-pink-800"><i class="fas fa-brain mr-1"></i> AI Generated Plan</span>'
+                    : '<span class="px-3 py-1 text-xs font-semibold rounded-full bg-teal-100 text-teal-800"><i class="fas fa-box mr-1"></i> Existing Trip Package</span>';
+
+                return `
+                    <div class="bg-white p-5 rounded-xl shadow-lg border-l-4 border-indigo-500">
+                        <div class="flex justify-between items-start">
+                            <h4 class="font-bold text-xl text-gray-900">${item.name}</h4>
+                            ${badge}
+                        </div>
+                        <div class="mt-3 grid grid-cols-2 gap-2 text-sm text-gray-700">
+                            <p><i class="fas fa-clock mr-2 text-indigo-500"></i> Duration: <strong>${item.days || 'N/A'} days</strong></p>
+                            <p><i class="fas fa-money-bill-wave mr-2 text-indigo-500"></i> Estimated Cost: <strong>${formattedCost}</strong></p>
+                        </div>
+                        <p class="mt-3 text-sm text-gray-600">${item.description}</p>
+                        <p class="mt-2 text-xs text-gray-500">Key Stops: ${stopsString}</p>
+                    </div>
+                `;
+            }).join('');
+        };
+        
+        
+         
+        const handleItinerarySearch = async (event) => {
+            event.preventDefault();
+            const resultsContainer = document.getElementById('itinerary-results');
+            const applyBtn = document.getElementById('apply-itinerary-filter-btn');
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                showToast('Please log in to use the Itinerary Planner.', true);
+                return;
+            }
+
+            const filters = {
+                location: document.getElementById('filter-location').value.trim(),
+                budget: parseInt(document.getElementById('filter-budget').value) || null,
+                interest: document.getElementById('filter-interest').value,
+                days: parseInt(document.getElementById('filter-days').value) || null,
+                persons: parseInt(document.getElementById('filter-persons').value) || null,
+            };
+
+            if (!filters.location && !filters.days && !filters.persons) {
+                showToast('Please provide at least a **Location**, **Duration (Days)**, or **No. of Persons**.', true);
+                return;
+            }
+
+            applyBtn.disabled = true;
+            applyBtn.innerHTML = '<i class="fas fa-sync-alt fa-spin mr-2"></i> Searching/Generating Plan...';
+            resultsContainer.innerHTML = '<div class="text-center p-8 text-indigo-500"><i class="fas fa-spinner fa-spin mr-2"></i> Generating personalized plan...</div>';
+
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            const locationCheck = filters.location.toLowerCase();
+            const mockSuccess = locationCheck.includes('ranchi') || locationCheck.includes('hazaribagh'); 
+
+            if (mockSuccess) {
+                const mockItinerary = {
+                    name: `${filters.days || 3} Day Trip to ${filters.location || 'Jharkhand'}`,
+                    description: `A customized plan for ${filters.persons || 2} people focusing on ${filters.interest || 'Nature'}. It includes major local attractions and estimated costs.`,
+                    locations: ['Falls', 'Temple', 'Local Market'],
+                    totalCost: filters.budget ? Math.min(filters.budget, 45000) : 35000,
+                    days: filters.days || 3,
+                    generated: true 
+                };
+                
+                const saveResult = await saveItineraryToDB(mockItinerary);
+
+                if (saveResult) {
+                    renderItineraryResults([mockItinerary]);
+                    showToast('Itinerary generated and saved successfully!', false);
+                } else {
+                    renderItineraryResults([]); 
+                    showToast('Itinerary generated but **failed to save** to the database.', true);
+                }
+
+            } else {
+                resultsContainer.innerHTML = `<p class="col-span-full text-center text-gray-500 p-8 border-2 border-dashed border-gray-300 rounded-xl">
+                    No existing trip packages match your filters, and a custom plan could not be generated for **${filters.location || 'this location'}**. Try changing your filters.
+                </p>`;
+            }
+
+            applyBtn.disabled = false;
+            applyBtn.innerHTML = '<i class="fas fa-search-location mr-2"></i> Apply Filters & Find Plans';
+        };
+       
+        async function fetchAndDisplayAverageRating(entityType, entityId, targetElement) {
+       
+            targetElement.innerHTML = `<span class="text-xs text-gray-400"><i class="fas fa-spinner fa-spin mr-1"></i> Loading ratings...</span>`;
+            
+            try {
+                const response = await fetch(`${API_URL}/ratings/average/${entityType}/${entityId}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    const averageRating = data.averageRating || 0;
+                    const count = data.count || 0;
+
+                    if (count > 0) {
+                        targetElement.innerHTML = getStarRatingHtml(averageRating, count);
+                    } else {
+                        targetElement.innerHTML = '<span class="text-xs text-gray-500">No ratings yet</span>';
+                    }
+                } else {
+                    targetElement.innerHTML = '<span class="text-xs text-red-500">Rating error</span>';
+                    console.error("Failed to fetch average rating:", data.message);
+                }
+            } catch (error) {
+                console.error('Error fetching rating:', error);
+                targetElement.innerHTML = '<span class="text-xs text-red-500">Network error</span>';
+            }
+        }
+        
+
+        const setupStarRating = () => {
+            const starContainer = document.getElementById('rating-stars');
+            const ratingValueInput = document.getElementById('rating-value');
+            starContainer.innerHTML = ''; 
+            for (let i = 1; i <= 5; i++) {
+                const star = document.createElement('i');
+                star.className = 'far fa-star text-gray-400 cursor-pointer hover:text-yellow-400 transition-colors';
+                star.dataset.rating = i;
+                
+                star.addEventListener('click', () => {
+                    ratingValueInput.value = i;
+                    updateStarDisplay(i);
+                });
+                
+                star.addEventListener('mouseover', () => {
+                    updateStarDisplay(i, true);
+                });
+                
+                star.addEventListener('mouseout', () => {
+                    updateStarDisplay(parseInt(ratingValueInput.value) || 0);
+                });
+                
+                starContainer.appendChild(star);
+            }
+        };
+
+        const updateStarDisplay = (currentRating, isHover = false) => {
+            document.querySelectorAll('#rating-stars i').forEach(star => {
+                const starRating = parseInt(star.dataset.rating);
+                if (starRating <= currentRating) {
+                    star.classList.remove('far', 'text-gray-400');
+                    star.classList.add('fas', 'text-yellow-500');
+                } else {
+                    star.classList.remove('fas', 'text-yellow-500');
+                    star.classList.add('far', 'text-gray-400');
+                }
+            });
+        };
+
+        const openRatingModal = (entityId, entityType, entityName) => {
+            const modal = document.getElementById('rating-modal');
+            
+            document.getElementById('modal-entity-id').value = entityId;
+            document.getElementById('modal-entity-type').value = entityType;
+            document.getElementById('rating-entity-name').textContent = entityName;
+            
+          
+            const displayType = entityType.charAt(0).toUpperCase() + entityType.slice(1);
+            document.getElementById('rating-entity-type-display').textContent = displayType;
+            
+            document.getElementById('rating-form').reset();
+            document.getElementById('rating-value').value = '';
+            updateStarDisplay(0); 
+            
+            setupStarRating(); 
+
+            modal.classList.remove('hidden');
+        };
+
+        const closeRatingModal = () => {
+            document.getElementById('rating-modal').classList.add('hidden');
+        };
+
+        const handleRatingSubmission = async (event) => {
+            event.preventDefault();
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                showToast('Please log in to submit a rating.', true);
+                return;
+            }
+
+            const entityId = document.getElementById('modal-entity-id').value;
+            const entityType = document.getElementById('modal-entity-type').value;
+            const rating = document.getElementById('rating-value').value;
+            const feedback = document.getElementById('rating-feedback').value;
+
+            if (!rating) {
+                showToast('Please select a star rating.', true);
+                return;
+            }
+
+            const submitBtn = document.getElementById('submit-rating-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Submitting...';
+
+            try {
+                const response = await fetch(`${API_URL}/ratings`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'Authorization': `Bearer ${token}` 
+                    },
+                    body: JSON.stringify({ entityId, entityType, rating: parseInt(rating), feedback })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({})); 
+                    throw new Error(errorData.message || 'Failed to submit rating.');
+                }
+
+                showToast('Rating submitted successfully!', false);
+                closeRatingModal();
+                if (entityType === 'listing') fetchAndDisplayListings(document.getElementById('marketplace-search-input').value.trim());
+                if (entityType === 'guide' || entityType === 'trip') {
+                    const guideId = document.getElementById('booking-guide-id').value;
+                    const guideName = document.getElementById('guide-profile-name').textContent;
+                    if (guideId) viewGuideProfile(guideId, guideName); 
+                    fetchTouristBookings();
+                }
+
+            } catch (error) {
+                console.error("Rating Submission Failed:", error);
+                showToast(`Rating Failed: ${error.message}`, true);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Submit Rating';
+            }
+        };
+
+
+        const fetchAndDisplayListings = async (searchTerm = '') => {
+    const container = document.getElementById('product-listings');
+    const loadingMessage = document.getElementById('loading-message-marketplace');
+    const searchInput = document.getElementById('marketplace-search-input');
+    container.innerHTML = '';
+    loadingMessage.classList.remove('hidden');
+
+    if (allListingsCache.length === 0 && searchTerm === '') {
+        loadingMessage.textContent = 'Loading amazing products from local vendors...';
+        try {
+            const response = await fetch(`${API_URL}/listings/all`);
+            if (!response.ok) throw new Error('Failed to fetch listings. Is the server running?');
+            allListingsCache = await response.json(); 
+            loadingMessage.classList.add('hidden');
+        } catch (error) {
+            console.error("Failed to fetch listings:", error);
+            loadingMessage.classList.add('hidden');
+            container.innerHTML = `<p class="col-span-full text-red-500 p-4 border rounded-xl bg-red-50">Error: ${error.message}. Please check your server connection.</p>`;
+            return;
+        }
+    } else if (allListingsCache.length === 0) {
+        await fetchAndDisplayListings();
+    }
+
+    let listingsToDisplay = allListingsCache;
+    if (searchTerm.trim() !== '') {
+        const lowerCaseSearchTerm = searchTerm.toLowerCase();
+        listingsToDisplay = allListingsCache.filter(l => l.name.toLowerCase().includes(lowerCaseSearchTerm) || (l.description && l.description.toLowerCase().includes(lowerCaseSearchTerm)) );
+        loadingMessage.classList.add('hidden');
+        searchInput.value = searchTerm;
+    } else {
+        loadingMessage.classList.add('hidden');
+        searchInput.value = '';
+    }
+
+    if (listingsToDisplay.length === 0) {
+        container.innerHTML = `<p class="col-span-full text-center text-gray-500 p-8 border-2 border-dashed border-gray-300 rounded-xl">
+            No products found matching your search criteria.
+        </p>`;
+        return;
+    }
+    
+    const wishlistIds = await fetchWishlistIds(); 
+
+    container.innerHTML = listingsToDisplay.map(l => {
+         const imageUrl = l.imageUrl || 'https://placehold.co/400x300/e5e7eb/374151?text=Jharkhand+Product';
+         const formattedPrice = `₹${Number(l.price).toLocaleString('en-IN')}`;
+         
+         const isLiked = wishlistIds.includes(l._id);
+         const heartIconClass = isLiked 
+            ? 'fas fa-heart text-red-500' 
+            : 'far fa-heart text-gray-400 hover:text-red-500';
+         
+         const likeButtonHtml = `<button 
+            class="marketplace-wishlist-btn p-2 rounded-full focus:outline-none transition duration-150" 
+            data-listing-id="${l._id}"
+            aria-label="Add to Wishlist">
+            <i id="like-icon-marketplace-${l._id}" class="${heartIconClass} text-2xl"></i>
+         </button>`;
+         
+         return `
+            <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 flex flex-col justify-between" id="listing-card-${l._id}">
+                <div class="p-4">
+                    <div class="h-40 bg-gray-200 rounded-lg mb-4 overflow-hidden" style="background-image: url('${imageUrl}'); background-size: cover; background-position: center;">
+                    </div>
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="text-xl font-bold text-gray-900 line-clamp-2">${l.name}</h4>
+                        <span class="text-lg font-semibold text-teal-600">${formattedPrice}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 line-clamp-3">${l.description || 'No description provided.'}</p>
+                    <div id="rating-listing-${l._id}" class="mt-3">
+                        <span class="text-sm text-gray-400"><i class="fas fa-spinner fa-spin mr-1"></i> Loading rating...</span>
+                    </div>
+                </div>
+                <div class="p-4 border-t border-gray-100 flex items-center space-x-3">
+                     ${likeButtonHtml}
+                    <label for="qty-${l._id}" class="text-sm text-gray-700">Quantity:</label>
+                    <input type="number" id="qty-${l._id}" value="1" min="1" class="w-16 p-2 border border-gray-300 rounded-lg text-center focus:ring-teal-500" data-listing-id="${l._id}" data-price="${l.price}">
+                    <button class="order-btn flex-grow bg-teal-600 text-white py-2 px-4 rounded-full hover:bg-teal-700 transition duration-300 font-semibold shadow-lg" data-listing-id="${l._id}" data-price="${l.price}">
+                        <i class="fas fa-shopping-cart mr-1"></i> Buy Item
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    listingsToDisplay.forEach(listing => {
+        const ratingElement = document.getElementById(`rating-listing-${listing._id}`);
+        if (ratingElement) {
+            fetchAndDisplayAverageRating('listing', listing._id, ratingElement);
+        }
+    });
+    
+    document.querySelectorAll('.marketplace-wishlist-btn').forEach(button => {
+        button.addEventListener('click', async (e) => {
+            const listingId = e.currentTarget.dataset.listingId;
+            const action = await toggleWishlistItem(listingId); 
+            const iconElement = document.getElementById(`like-icon-marketplace-${listingId}`);
+            
+            if (action === 'added') {
+                iconElement.classList.remove('far', 'text-gray-400', 'hover:text-red-500');
+                iconElement.classList.add('fas', 'text-red-500');
+            } else if (action === 'removed') {
+                iconElement.classList.remove('fas', 'text-red-500');
+                iconElement.classList.add('far', 'text-gray-400', 'hover:text-red-500');
+
+                if (document.getElementById('view-wishlist') && document.getElementById('view-wishlist').classList.contains('hidden') === false) {
+                     renderWishlist(); 
+                }
+            }
+        });
+    });
+
+    document.querySelectorAll('.order-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const listingId = e.currentTarget.dataset.listingId;
+            const price = parseFloat(e.currentTarget.dataset.price);
+            const quantityInput = document.getElementById(`qty-${listingId}`);
+            const quantity = parseInt(quantityInput.value);
+            handleOrder(listingId, quantity, price);
+        });
+    });
+};
+
+       const fetchAndDisplayGuides = async () => {
+            const container = document.getElementById('guide-list-container');
+            const loadingMessage = document.getElementById('loading-message-guide');
+            
+            container.innerHTML = ''; 
+            loadingMessage.classList.remove('hidden');
+
+            try {
+                const response = await fetch(`${API_URL}/users/guides`); 
+                
+                if (!response.ok) throw new Error('Failed to fetch guides. Is the server running?');
+
+                const allGuides = await response.json();
+                
+                const guidesToDisplay = allGuides.filter(guide => guide.isEkycVerified === true);
+
+                loadingMessage.classList.add('hidden');
+
+                if (guidesToDisplay.length === 0) {
+                    container.innerHTML = `<p class="col-span-full text-center text-gray-500 p-8 border-2 border-dashed border-gray-300 rounded-xl">No eKYC Verified guides found at the moment.</p>`;
+                    return;
+                }
+
+                container.innerHTML = guidesToDisplay.map(guide => {
+                    const specialties = Array.isArray(guide.profile?.specialties) 
+                        ? guide.profile.specialties.join(', ')
+                        : (guide.profile?.specialties || 'Local Expert');
+                    
+                    // Languages logic
+                    const languages = Array.isArray(guide.languages) && guide.languages.length > 0 
+                        ? guide.languages.join(', ')
+                        : 'No languages listed'; 
+
+                    const ratingTargetId = `rating-guide-list-${guide._id}`;
+                    
+                    const verifiedBadgeHtml = `
+                        <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <i class="fas fa-check-circle mr-1"></i> Verified
+                        </span>
+                    `;
+
+                    return `
+                        <div class="flex items-center justify-between p-4 border rounded-lg bg-white shadow hover:shadow-md transition duration-200">
+                            <div class="flex items-center space-x-4">
+                                <i class="fas fa-user-circle text-4xl text-teal-500"></i>
+                                <div>
+                                    <p class="font-bold text-lg text-gray-900 flex items-center">
+                                        ${guide.name || 'Local Guide'}
+                                        ${verifiedBadgeHtml} </p>
+                                    <div id="${ratingTargetId}" class="mb-1">
+                                        <span class="text-xs text-gray-400"><i class="fas fa-spinner fa-spin mr-1"></i> Loading rating...</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600">${specialties}</p>
+                                    
+                                    <p class="text-sm text-teal-700 font-medium">
+                                        <i class="fas fa-language mr-1"></i> ${languages}
+                                    </p>
+                                    <p class="text-xs text-gray-400">ID: ${guide._id}</p>
+                                </div>
+                            </div>
+                            <button 
+                                class="view-profile-btn bg-blue-500 text-white py-2 px-4 rounded-full text-sm hover:bg-blue-600 transition font-medium"
+                                data-guide-id="${guide._id}" data-guide-name="${guide.name || 'Local Guide'}">
+                                View Profile
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+
+                guidesToDisplay.forEach(guide => {
+                    const ratingElement = document.getElementById(`rating-guide-list-${guide._id}`);
+                    if (ratingElement) {
+                        fetchAndDisplayAverageRating('guide', guide._id, ratingElement);
+                    }
+                });
+
+                document.querySelectorAll('.view-profile-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const guideId = e.currentTarget.dataset.guideId;
+                        const guideName = e.currentTarget.dataset.guideName;
+                        viewGuideProfile(guideId, guideName);
+                    });
+                });
+
+            } catch (error) {
+                console.error("Failed to fetch guides:", error);
+                loadingMessage.classList.add('hidden');
+                container.innerHTML = `<p class="col-span-full text-red-500 p-4 border rounded-xl bg-red-50">Error fetching guides: ${error.message}.</p>`;
+            }
+        };
+
+        // Function to handle logout
+const forceLogout = () => {
+    // 1. Clear user data
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    
+    // 2. Optional: Show a message
+    alert("Logging out due to incomplete profile details.");
+    
+    // 3. Redirect to login or home page
+    window.location.href = 'index.html'; // Change this to your login file
+};
+
+// Add listener to the X button
+document.getElementById('popup-logout-x').addEventListener('click', forceLogout);
+
+        const handleOrder = async (listingId, quantity, price) => {
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user')); 
+            if (!token || !user) {
+                showToast('Please log in to place an order.', true);
+                return;
+            }
+
+            if (quantity < 1 || isNaN(quantity)) {
+                showToast('Please enter a valid quantity (1 or more).', true);
+                return;
+            }
+
+            const productDetail = allListingsCache.find(l => l._id === listingId);
+            
+            if (!productDetail) {
+                showToast('Error: Product details not found.', true);
+                return;
+            }
+
+            const totalAmount = quantity * price;
+
+            const orderDataForDelivery = {
+                customer: {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email,
+                },
+                product: {
+                    id: productDetail._id,
+                    name: productDetail.name,
+                    price: productDetail.price,
+                    description: productDetail.description,
+                    imageUrl: productDetail.imageUrl || 'https://placehold.co/300x200/cccccc/333333?text=Product',
+                    vendorId: productDetail.vendorId, 
+                },
+               
+                order: {
+                    quantity: quantity,
+                    totalAmount: totalAmount.toFixed(2),
+                    date: new Date().toISOString().split('T')[0]
+                }
+            };
+
+            try {
+                localStorage.setItem('pendingOrderData', JSON.stringify(orderDataForDelivery));
+                
+                showToast('Redirecting to checkout...', false);
+
+                window.location.href = 'delivery.html';
+
+            } catch (error) {
+                console.error("Redirection Failed:", error);
+                showToast(`Redirection Failed: ${error.message}`, true);
+            }
+        };
+
+   
+        const viewGuideProfile = async (guideId, guideName) => {
+            toggleDashboardViews('guide-profile'); 
+            
+            document.getElementById('guide-profile-name').textContent = guideName;
+            document.getElementById('guide-profile-id').textContent = `ID: ${guideId}`;
+            document.getElementById('booking-guide-id').value = guideId; 
+            document.getElementById('guide-trips-list').innerHTML = '<div class="text-center text-indigo-500"><i class="fas fa-spinner fa-spin mr-2"></i> Loading trips...</div>';
+
+          
+            const guideRatingElement = document.getElementById('guide-profile-rating-display');
+            guideRatingElement.innerHTML = '<span class="text-sm text-gray-400"><i class="fas fa-spinner fa-spin mr-1"></i> Loading guide rating...</span>';
+            fetchAndDisplayAverageRating('guide', guideId, guideRatingElement);
+
+
+            try {
+                const response = await fetch(`${API_URL}/guide/profile/${guideId}`);
+                if (!response.ok) throw new Error('Failed to fetch guide details and trips.');
+
+                const data = await response.json();
+                
+           
+                renderGuideTrips(data.trips);
+                
+            } catch (error) {
+                console.error("Error loading guide profile:", error);
+                showToast(`Failed to load profile for ${guideName}.`, true);
+                document.getElementById('guide-trips-list').innerHTML = `<p class="text-red-500">Error: Could not load trips. ${error.message}</p>`;
+            }
+        };
+   
+
+
+        const renderGuideTrips = (trips) => {
+            const listContainer = document.getElementById('guide-trips-list');
+            const submitBtn = document.getElementById('submit-booking-btn');
+            
+            if (trips.length === 0) {
+                listContainer.innerHTML = '<p class="text-center text-gray-500 p-4 border border-dashed rounded-lg">This guide has not published any trips yet.</p>';
+                submitBtn.disabled = true;
+                document.getElementById('booking-trip-selection-status').classList.add('hidden');
+                return;
+            }
+
+            listContainer.innerHTML = trips.map(trip => {
+                const stopsString = Array.isArray(trip.locations) && trip.locations.length > 0 
+                    ? trip.locations.map(loc => loc.name).join(' → ')
+                    : 'Not specified';
+                const formattedPrice = trip.price ? `₹${Number(trip.price).toLocaleString('en-IN')}` : 'Price not set';
+                
+               
+                const ratingTargetId = `rating-trip-${trip._id}`;
+
+
+                return `
+                    <div class="trip-card bg-gray-50 p-4 rounded-lg border border-gray-200" data-trip-id="${trip._id}">
+                        <div class="flex justify-between items-start">
+                            <div class="space-y-1">
+                                <h5 class="font-bold text-lg text-gray-800">${trip.package}</h5>
+                                
+                                <div id="${ratingTargetId}" class="mb-2">
+                                    <span class="text-sm text-gray-400"><i class="fas fa-spinner fa-spin mr-1"></i> Loading rating...</span>
+                                </div>
+                                
+                                <p class="text-sm text-green-600 font-semibold">${formattedPrice} per person</p>
+                                <p class="text-xs text-gray-500">Route: ${trip.from} to ${trip.to}</p>
+                            </div>
+                            <div class="flex items-center">
+                                <label class="text-sm text-gray-600 mr-2">Select Trip:</label>
+                                <input type="checkbox" name="selectedTrip" value="${trip._id}" 
+                                    data-trip-id="${trip._id}"
+                                    class="trip-checkbox h-5 w-5 text-teal-600 border-gray-300 rounded focus:ring-teal-500">
+                            </div>
+                        </div>
+                        <p class="mt-3 text-sm text-gray-700">Stops: ${stopsString}</p>
+                        <p class="mt-1 text-xs text-gray-500">${trip.requirement.substring(0, 100)}...</p>
+                    </div>
+                `;
+            }).join('');
+           
+            trips.forEach(trip => {
+                const ratingElement = document.getElementById(`rating-trip-${trip._id}`);
+                if (ratingElement) {
+                    fetchAndDisplayAverageRating('trip', trip._id, ratingElement);
+                }
+            });
+
+            document.querySelectorAll('.trip-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', (e) => {
+                    const statusMessage = document.getElementById('booking-trip-selection-status');
+                    if (e.target.checked) {
+                        document.querySelectorAll('.trip-checkbox').forEach(other => {
+                            if (other !== e.target) {
+                                other.checked = false;
+                            }
+                        });
+                        submitBtn.disabled = false;
+                        statusMessage.classList.add('hidden');
+                    } else {
+                        const anyChecked = document.querySelectorAll('.trip-checkbox:checked').length > 0;
+                        submitBtn.disabled = !anyChecked;
+                        if (!anyChecked) {
+                            statusMessage.classList.remove('hidden');
+                        }
+                    }
+                });
+            });
+
+            submitBtn.disabled = true;
+            document.getElementById('booking-trip-selection-status').classList.remove('hidden');
+        };
+
+        const handleTripBooking = async (event) => {
+            event.preventDefault();
+            const token = localStorage.getItem('token');
+            const selectedCheckbox = document.querySelector('.trip-checkbox:checked');
+            
+            if (!token) {
+                showToast('Please log in to send a booking request.', true);
+                return;
+            }
+
+            if (!selectedCheckbox) {
+                showToast('Please select a trip plan before booking.', true);
+                return;
+            }
+            
+            const guideId = document.getElementById('booking-guide-id').value;
+            const tripId = selectedCheckbox.value;
+            const bookingDate = document.getElementById('booking-date').value;
+            const touristCount = parseInt(document.getElementById('tourist-count').value);
+
+            if (!bookingDate || touristCount < 1) {
+                showToast('Please fill in a valid date and tourist count.', true);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/bookings/trip`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'Authorization': `Bearer ${token}` 
+                    },
+                    body: JSON.stringify({ guideId, tripId, bookingDate, touristCount })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({})); 
+                    throw new Error(errorData.message || 'Failed to send booking request.');
+                }
+
+                showToast('Booking request sent successfully! Awaiting guide approval.', false);
+                document.getElementById('booking-form').reset();
+                selectedCheckbox.checked = false;
+                document.getElementById('submit-booking-btn').disabled = true;
+                document.getElementById('booking-trip-selection-status').classList.remove('hidden'); 
+
+            } catch (error) {
+                console.error("Booking Failed:", error);
+                showToast(`Booking Failed: ${error.message}`, true);
+            }
+        };
+
+
+       
+
+        async function fetchTouristBookings() {
+            touristBookingsContainer.innerHTML = '<div class="text-center p-8 text-teal-500"><i class="fas fa-spinner fa-spin mr-2"></i> Loading your bookings...</div>';
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                touristBookingsContainer.innerHTML = '<div class="text-red-500 p-6">Please log in as a Tourist to view your bookings.</div>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/tourist/bookings`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch bookings.');
+                }
+
+                const bookings = await response.json();
+                renderBookings(bookings);
+
+            } catch (error) {
+                console.error('Error fetching tourist bookings:', error);
+                touristBookingsContainer.innerHTML = `<div class="text-red-500 p-6">Could not load bookings: ${error.message || 'Server error'}.</div>`;
+            }
+        }
+
+   
+        function renderBookings(bookings) {
+    if (bookings.length === 0) {
+        touristBookingsContainer.innerHTML = '<div class="bg-blue-100 p-6 rounded-lg text-blue-800">You have not made any trip booking requests yet.</div>';
+        return;
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    touristBookingsContainer.innerHTML = `
+        <div class="space-y-4">
+            ${bookings.map(booking => {
+                const status = booking.status || 'Pending';
+                const isPending = status.includes('Pending');
+                const isAccepted = status === 'Accepted';
+             
+                const isFinished = status === 'Finished';
+
+                const bookingStartDate = booking.bookingDate ? new Date(booking.bookingDate) : null;
+               
+                if (bookingStartDate) {
+                    bookingStartDate.setHours(0, 0, 0, 0);
+                }
+                const isTripOver = bookingStartDate && (bookingStartDate <= today); 
+                
+
+                const canCancel = (status === 'Pending' || status === 'Accepted') && (!bookingStartDate || bookingStartDate > today);
+
+             
+                const shouldShowRatingButtons = isFinished || (isAccepted && isTripOver);
+
+
+                const statusColor = isPending ? 'bg-yellow-200 text-yellow-800' : 
+                                            (isAccepted ? 'bg-green-200 text-green-800' : 
+                                             status === 'Cancelled' ? 'bg-red-200 text-red-800' : 
+                                             isFinished ? 'bg-teal-200 text-teal-800' : 'bg-gray-200 text-gray-800');
+                                            
+                const formattedDate = booking.bookingDate 
+                    ? new Date(booking.bookingDate).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' })
+                    : 'Date N/A';
+                
+                const formattedPrice = booking.totalEstimatedPrice 
+                    ? `₹${Number(booking.totalEstimatedPrice).toLocaleString('en-IN')}` 
+                    : 'N/A';
+                
+                let actionButtons = '';
+                
+              
+                if (canCancel) {
+                    actionButtons = `
+                        <button onclick="cancelTripBooking('${booking._id}')" 
+                                class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-full transition duration-150">
+                            <i class="fas fa-times mr-1"></i> Cancel Trip
+                        </button>
+                    `;
+                }
+                
+                else if (shouldShowRatingButtons) {
+                    actionButtons = `
+                        <div class="flex space-x-2 justify-end items-center">
+                            <button 
+                                data-entity-id="${booking.tripId}" 
+                                data-entity-type="trip" 
+                                data-entity-name="${booking.tripPackage}"
+                                class="rate-btn px-3 py-1 text-xs font-semibold text-white bg-teal-600 rounded-full hover:bg-teal-700 transition-colors"
+                            >
+                                Rate Trip
+                            </button>
+                            <button 
+                                data-entity-id="${booking.guideId}" 
+                                data-entity-type="guide" 
+                                data-entity-name="${booking.guideName}"
+                                class="rate-btn px-3 py-1 text-xs font-semibold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-colors"
+                            >
+                                Rate Guide
+                            </button>
+                            <a href="mailto:${booking.guideEmail}" 
+                                class="bg-gray-600 text-white text-sm py-1.5 px-3 rounded-full hover:bg-gray-700 transition duration-300">
+                                <i class="fas fa-comment-dots"></i>
+                            </a>
+                        </div>
+                    `;
+                } else if (status === 'Rejected') {
+                    actionButtons = '<span class="text-sm text-gray-500 italic">Consider other guides or packages.</span>';
+                } else if (status === 'Cancelled') { 
+                    actionButtons = '<span class="text-sm text-red-600 italic">This trip was cancelled.</span>';
+                } else if (isAccepted && !isTripOver) {
+                   
+                    actionButtons = '<span class="text-sm text-green-600 italic">Trip is accepted and pending start.</span>';
+                }
+
+
+                return `
+                    <div class="booking-card bg-white p-5 rounded-xl shadow-lg border-l-4 ${isAccepted ? 'border-green-500' : (isPending ? 'border-yellow-500' : (isFinished ? 'border-teal-500' : 'border-red-500'))}">
+                        <div class="flex justify-between items-start">
+                            <div class="space-y-1">
+                                <p class="text-lg font-bold text-gray-800">${booking.tripPackage || 'Trip Package N/A'}</p>
+                                <p class="text-sm text-gray-600">Guide: ${booking.guideName || 'Guide N/A'} 
+                                    ${booking.guideEmail ? `(<a href="mailto:${booking.guideEmail}" class="text-teal-600 hover:underline">${booking.guideEmail}</a>)` : ''}
+                                </p>
+                                <p class="text-xs text-gray-400">Booking ID: ${booking._id}</p>
+                            </div>
+                            <span class="px-3 py-1 text-xs font-semibold rounded-full ${statusColor}">
+                                ${status}
+                            </span>
+                        </div>
+                        <div class="mt-3 grid grid-cols-2 gap-2 text-sm text-gray-700">
+                            <p><i class="fas fa-calendar-alt mr-2 text-teal-500"></i> Start Date: <strong>${formattedDate}</strong></p>
+                            <p><i class="fas fa-users mr-2 text-teal-500"></i> Headcount: <strong>${booking.touristCount || 'N/A'}</strong></p>
+                            <p class="col-span-2"><i class="fas fa-money-bill-wave mr-2 text-teal-500"></i> Estimated Total: <strong>${formattedPrice}</strong></p>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-gray-100 text-right">
+                            ${actionButtons}
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+
+    const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    showToast("Logged out successfully.");
+    window.location.href = 'login.html'; // Change to your actual login page filename
+};
+
+// Add Event Listener for the X button
+document.getElementById('close-popup-logout').addEventListener('click', handleLogout);
+
+    document.querySelectorAll('#tourist-bookings-container .rate-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const entityId = this.getAttribute('data-entity-id');
+            const entityType = this.getAttribute('data-entity-type');
+            const entityName = this.getAttribute('data-entity-name');
+            openRatingModal(entityId, entityType, entityName);
+        });
+    });
+}
+
+// Show the popup
+const showIdVerificationPopup = () => {
+    document.getElementById('id-popup-modal').classList.remove('hidden');
+};
+
+// Handle the Save Button inside the Popup
+document.getElementById('save-popup-ids-btn').addEventListener('click', async () => {
+    const aadhar = document.getElementById('popup-aadhar').value.trim();
+    const license = document.getElementById('popup-license').value.trim();
+    const pan = document.getElementById('popup-pan').value.trim();
+
+    // Check if at least 2 are filled
+    const filledDetails = [aadhar, license, pan].filter(val => val !== "");
+
+    if (filledDetails.length < 2) {
+        showToast("Please provide at least 2 details (Aadhar, License, or PAN).", true);
+        return;
+    }
+
+    const payload = {
+        aadharNo: aadhar,
+        licenseNo: license,
+        panNo: pan
+    };
+
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_URL}/users/profile`, {
+            method: 'PATCH',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+            const updatedUser = await response.json();
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+            showToast("Profile details updated successfully!", false);
+            document.getElementById('id-popup-modal').classList.add('hidden');
+            fetchAndDisplayProfile(); // Refresh the display
+        } else {
+            throw new Error("Failed to save details.");
+        }
+    } catch (error) {
+        showToast(error.message, true);
+    }
+});
+
+async function cancelTripBooking(bookingId) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      
+        showToast("Please log in to cancel a trip.", false);
+        return;
+    }
+
+    if (!confirm(`Are you sure you want to cancel Trip Booking ID: ${bookingId}? This action cannot be undone.`)) {
+        return; 
+    }
+
+    
+    showToast(`Cancelling trip ${bookingId}...`, false); 
+
+    try {
+       
+        const response = await fetch(`${API_URL}/bookings/${bookingId}/cancel`, {
+            method: 'PATCH', 
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+           
+            body: JSON.stringify({ status: 'Cancelled' }) 
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            
+            throw new Error(errorData.message || "Failed to cancel trip booking.");
+        }
+
+        
+        showToast(`Trip Booking ID: ${bookingId} has been successfully CANCELLED.`, false);
+        
+       
+        fetchTouristBookings(); 
+        
+    } catch (error) {
+        console.error('Error during trip cancellation:', error);
+        showToast(`Cancellation failed: ${error.message || "Please check your network and try again."}`, true);
+    }
+}
+       
+        const toggleEditMode = (isEdit = true) => {
+    const displayDiv = document.getElementById('profile-details-display');
+    const formDiv = document.getElementById('edit-profile-form');
+    const toggleBtn = document.getElementById('toggle-edit-btn');
+    const user = JSON.parse(localStorage.getItem('user'));
+
+    if (isEdit) {
+        if (user) {
+            document.getElementById('edit-name').value = user.name || '';
+            document.getElementById('edit-email').value = user.email || '';
+            document.getElementById('edit-phone').value = user.phone || '';
+            // New Fields
+            document.getElementById('edit-aadhaar').value = user.aadhaarNo || '';
+            document.getElementById('edit-license').value = user.licenseNo || '';
+            document.getElementById('edit-pan').value = user.panNo || '';
+        }
+
+        displayDiv.classList.add('hidden');
+        formDiv.classList.remove('hidden');
+        toggleBtn.textContent = 'Viewing Edit Form...';
+        toggleBtn.disabled = true;
+    } else {
+        displayDiv.classList.remove('hidden');
+        formDiv.classList.add('hidden');
+        toggleBtn.textContent = 'Edit Details';
+        toggleBtn.disabled = false;
+        fetchAndDisplayProfile(); 
+    }
+};
+
+const handleProfileUpdate = async (event) => {
+    event.preventDefault();
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user'));
+
+    if (!token || !user) {
+        showToast('Authentication required to save changes.', true);
+        return;
+    }
+
+    const newName = document.getElementById('edit-name').value.trim();
+    const newPhone = document.getElementById('edit-phone').value.trim();
+    // Capture New Fields
+    const newAadhaar = document.getElementById('edit-aadhaar').value.trim();
+    const newLicense = document.getElementById('edit-license').value.trim();
+    const newPan = document.getElementById('edit-pan').value.trim();
+
+    if (!newName) {
+        showToast('Name is required.', true);
+        return;
+    }
+
+    const payload = {
+        name: newName,
+        phone: newPhone,
+        aadharNo: newAadhaar,
+        licenseNo: newLicense,
+        panNo: newPan
+    };
+
+    const saveButton = document.getElementById('save-profile-btn');
+    saveButton.disabled = true;
+    saveButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Saving...';
+
+    try {
+        const response = await fetch(`${API_URL}/users/profile`, {
+            method: 'PATCH', 
+            headers: { 
+                'Content-Type': 'application/json', 
+                'Authorization': `Bearer ${token}` 
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({})); 
+            throw new Error(errorData.message || 'Failed to update profile.');
+        }
+
+        const updatedUser = await response.json();
+        localStorage.setItem('user', JSON.stringify(updatedUser)); 
+        
+        showToast('Profile updated successfully!', false);
+        toggleEditMode(false); 
+
+    } catch (error) {
+        console.error("Profile Update Failed:", error);
+        showToast(`Update Failed: ${error.message}`, true);
+    } finally {
+        saveButton.disabled = false;
+        saveButton.innerHTML = '<i class="fas fa-save mr-1"></i> Save Changes';
+    }
+};
+
+       // 1. Updated Profile Display with ID Check
+const fetchAndDisplayProfile = () => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    
+    if (!user) {
+        document.getElementById('profile-details-display').innerHTML = '<p class="text-red-500">Error: User details not found. Please log in.</p>';
+        return;
+    }
+
+    // Standard Display
+    document.getElementById('profile-id').textContent = user._id || 'N/A';
+    document.getElementById('profile-name').textContent = user.name || 'N/A';
+    document.getElementById('profile-email').textContent = user.email || 'N/A';
+    document.getElementById('profile-phone').textContent = user.phone || 'N/A'; 
+    document.getElementById('profile-role').textContent = user.role || 'N/A';
+    
+    // Spelling as requested: aadharNo
+    document.getElementById('profile-aadhaar').textContent = user.aadharNo || 'Not Provided';
+    document.getElementById('profile-license').textContent = user.licenseNo || 'Not Provided';
+    document.getElementById('profile-pan').textContent = user.panNo || 'Not Provided';
+
+    // TRIGGER POPUP: Count how many are filled
+    const ids = [user.aadharNo, user.licenseNo, user.panNo];
+    const filledCount = ids.filter(val => val && val.toString().trim() !== "").length;
+
+    if (filledCount < 2) {
+        document.getElementById('id-popup-modal').classList.remove('hidden');
+    }
+};
+
+// 2. Handle the Popup Save Button
+document.getElementById('save-popup-ids-btn').addEventListener('click', async () => {
+    const aadhar = document.getElementById('popup-aadhar').value.trim();
+    const license = document.getElementById('popup-license').value.trim();
+    const pan = document.getElementById('popup-pan').value.trim();
+
+    const filled = [aadhar, license, pan].filter(val => val !== "");
+
+    if (filled.length < 2) {
+        showToast("Error: You must provide at least 2 details.", true);
+        return;
+    }
+
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_URL}/user/profile`, {
+            method: 'PUT', // or PATCH depending on your backend
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ aadharNo: aadhar, licenseNo: license, panNo: pan })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            // Update local storage so the popup doesn't appear again
+            localStorage.setItem('user', JSON.stringify(data.user || data));
+            showToast("Details verified and saved!");
+            document.getElementById('id-popup-modal').classList.add('hidden');
+            fetchAndDisplayProfile(); // Refresh screen
+        }
+    } catch (error) {
+        showToast("Failed to save details.", true);
+    }
+});
+
+// 3. IMPORTANT: Ensure this is in your DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+    const token = localStorage.getItem('token');
+    
+    if (token) {
+        // This line ensures the check runs as soon as the page loads
+        fetchAndDisplayProfile(); 
+    }
+    
+    // ... rest of your marketplace logic
+});
+
+
+        async function fetchItemOrders() {
+            const itemOrdersContainer = document.getElementById('item-orders-container');
+            itemOrdersContainer.innerHTML = '<div class="text-center p-8 text-teal-500"><i class="fas fa-spinner fa-spin mr-2"></i> Loading your item orders...</div>';
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                itemOrdersContainer.innerHTML = '<div class="text-red-500 p-6">Please log in to view your order history.</div>';
+                return;
+            }
+
+            try {
+              
+                const response = await fetch(`${API_URL}/tourist/orders`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch item orders.');
+                }
+
+                const orders = await response.json();
+                renderItemOrders(orders);
+
+            } catch (error) {
+                console.error('Error fetching item orders:', error);
+                itemOrdersContainer.innerHTML = `<div class="text-red-500 p-6">Could not load item orders: ${error.message || 'Server error'}.</div>`;
+            }
+        }
+
+        
+        function renderItemOrders(orders) {
+            const itemOrdersContainer = document.getElementById('item-orders-container');
+            
+            if (orders.length === 0) {
+                itemOrdersContainer.innerHTML = '<div class="bg-blue-100 p-6 rounded-lg text-blue-800">You have not placed any marketplace item orders yet.</div>';
+                return;
+            }
+
+            itemOrdersContainer.innerHTML = `
+                <div class="space-y-4">
+                    ${orders.map(order => {
+               
+                        const status = order.status || 'pending'; 
+                        const isPending = status.includes('pending');
+                        const isDelivered = status === 'Delivered';
+                        
+                        const statusColor = isPending ? 'bg-yellow-200 text-yellow-800' : 
+                                                (isDelivered ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800');
+                        
+                        const formattedDate = order.orderDate 
+                            ? new Date(order.orderDate).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+                            : 'Date N/A';
+                        
+                        const totalAmount = order.totalAmount 
+                            ? `₹${Number(order.totalAmount).toLocaleString('en-IN')}` 
+                            : 'N/A';
+                        
+                        
+                        const productName = order.listingName || 'Marketplace Item'; 
+
+                  
+                        let actionButtons = '';
+                        if (isDelivered) {
+                            actionButtons = `
+                                <div class="flex justify-end mt-4 pt-4 border-t border-gray-100">
+                                    <button 
+                                        data-entity-id="${order.listingId}" 
+                                        data-entity-type="listing" 
+                                        data-entity-name="${productName}"
+                                        class="rate-btn px-3 py-1 text-xs font-semibold text-white bg-teal-600 rounded-full hover:bg-teal-700 transition-colors"
+                                    >
+                                        Rate Item
+                                    </button>
+                                </div>
+                            `;
+                        }
+                    
+
+                        return `
+                            <div class="order-card bg-white p-5 rounded-xl shadow-lg border-l-4 ${isDelivered ? 'border-green-500' : (isPending ? 'border-yellow-500' : 'border-red-500')}">
+                                <div class="flex justify-between items-start">
+                                    <div class="space-y-1">
+                                        <p class="text-lg font-bold text-gray-800">${productName}</p>
+                                        <p class="text-sm text-gray-600">Order ID: <span class="font-mono text-xs">${order._id}</span></p>
+                                    </div>
+                                    <span class="px-3 py-1 text-xs font-semibold rounded-full ${statusColor}">
+                                        ${status}
+                                    </span>
+                                </div>
+                                <div class="mt-3 grid grid-cols-2 gap-2 text-sm text-gray-700">
+                                    <p><i class="fas fa-calendar-alt mr-2 text-teal-500"></i> Order Date: <strong>${formattedDate}</strong></p>
+                                    <p><i class="fas fa-sort-numeric-up mr-2 text-teal-500"></i> Quantity: <strong>${order.quantity || 'N/A'}</strong></p>
+                                    <p class="col-span-2"><i class="fas fa-money-bill-wave mr-2 text-teal-500"></i> Total Amount: <strong>${totalAmount}</strong></p>
+                                </div>
+                                <p class="mt-3 text-xs text-gray-500">Payment: ${order.paymentMethod || 'N/A'}</p>
+                                ${actionButtons} </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+            
+
+            document.querySelectorAll('#item-orders-container .rate-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const entityId = this.getAttribute('data-entity-id');
+                    const entityType = this.getAttribute('data-entity-type');
+                    const entityName = this.getAttribute('data-entity-name');
+                    openRatingModal(entityId, entityType, entityName);
+                });
+            });
+          
+        }
+
+
+
+        const getGeoLocation = () => {
+            return new Promise((resolve, reject) => {
+                if (!navigator.geolocation) {
+                    reject(new Error('Geolocation is not supported by your browser.'));
+                    return;
+                }
+                
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        resolve({
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude,
+                            accuracy: position.coords.accuracy
+                        });
+                    },
+                    (error) => {
+                        let errorMessage = 'Could not get location.';
+                        if (error.code === error.PERMISSION_DENIED) {
+                            errorMessage = 'Location access denied. Please enable location services.';
+                        } else if (error.code === error.POSITION_UNAVAILABLE) {
+                            errorMessage = 'Location information is unavailable.';
+                        } else if (error.code === error.TIMEOUT) {
+                            errorMessage = 'Request to get location timed out.';
+                        }
+                        reject(new Error(errorMessage));
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            });
+        };
+
+        const handleSOS = async () => {
+        };
+
+notificationBtn.addEventListener('click', (e) => {
+    e.stopPropagation(); 
+    toggleNotificationDropdown();
+});
+
+        const toggleDashboardViews = (viewId) => {
+            document.getElementById('profile-dropdown-content').classList.add('hidden');
+            
+            document.querySelectorAll('.view-content').forEach(view => {
+                view.classList.add('hidden');
+            });
+            document.getElementById(`view-${viewId}`).classList.remove('hidden'); 
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('tab-active');
+                if (btn.dataset.view === viewId && btn.classList.contains('hidden') === false) {
+                    btn.classList.add('tab-active');
+                }
+            });
+
+            if (viewId === 'marketplace') {
+                document.getElementById('marketplace-search-input').value = '';
+                fetchAndDisplayListings(); 
+            }
+            if (viewId === 'guide-preference') {
+                fetchAndDisplayGuides(); 
+            }
+            if (viewId === 'my-profile') {
+      
+                toggleEditMode(false); 
+                fetchAndDisplayProfile();
+            }
+            if (viewId === 'order-history') {
+                fetchItemOrders(); 
+            }
+
+            if (viewId === 'wishlist') {
+                if (allListingsCache.length === 0) {
+                      fetchAndDisplayListings();
+                }
+                renderWishlist();
+            }
+            if (viewId === 'my-bookings') {
+                fetchTouristBookings(); 
+            }
+        };
+
+
+       
+        document.getElementById('profile-dropdown-btn').addEventListener('click', () => {
+            const dropdown = document.getElementById('profile-dropdown-content');
+            dropdown.classList.toggle('hidden');
+        });
+        
+        document.querySelectorAll('.dropdown-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                toggleDashboardViews(e.currentTarget.dataset.view);
+            });
+        });
+
+        document.getElementById('logout-btn-dropdown').addEventListener('click', () => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        });
+
+        document.getElementById('sos-btn').addEventListener('click', handleSOS);
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                toggleDashboardViews(e.currentTarget.dataset.view);
+            });
+        });
+        if (cancelSosBtn) {
+      
+        cancelSosBtn.addEventListener('click', (e) => cancelSOS(e)); 
+    }
+    if (sosBtn) {
+        sosBtn.addEventListener('click', sendSOS);
+    }
+
+        document.getElementById('booking-form').addEventListener('submit', handleTripBooking);
+
+        document.getElementById('back-to-guides-btn').addEventListener('click', () => {
+             toggleDashboardViews('guide-preference');
+        });
+       
+        const searchInput = document.getElementById('marketplace-search-input');
+        
+        const performSearch = () => {
+            fetchAndDisplayListings(searchInput.value.trim());
+        };
+        
+        document.getElementById('marketplace-search-btn').addEventListener('click', performSearch);
+        
+        document.getElementById('marketplace-clear-search-btn').addEventListener('click', () => {
+            searchInput.value = '';
+            fetchAndDisplayListings('');
+        });
+        
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                performSearch();
+            }
+        });
+
+        document.getElementById('toggle-edit-btn').addEventListener('click', () => {
+            toggleEditMode(true); 
+        });
+        
+        document.getElementById('cancel-edit-btn').addEventListener('click', () => {
+            toggleEditMode(false);
+        });
+        
+        document.getElementById('edit-profile-form').addEventListener('submit', handleProfileUpdate);
+        
+       
+        document.getElementById('close-rating-modal-btn').addEventListener('click', closeRatingModal);
+        document.getElementById('rating-form').addEventListener('submit', handleRatingSubmission);
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+             const token = localStorage.getItem('token');
+             
+             
+             toggleDashboardViews('marketplace');
+
+             if (!token) {
+                 showToast("You are viewing as a guest. Please log in to place an order or booking.", true);
+             }
+        });
+    </script>
+</body>
+</html>
