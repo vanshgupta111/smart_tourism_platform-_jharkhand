@@ -3,10 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Home Service - Destinations</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .gallery-carousel::-webkit-scrollbar { height: 8px; }
+        .gallery-carousel::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        
+        /* Custom Scrollbar for Main Destinations */
+        #destinations-container {
+            scrollbar-width: auto;
+            scrollbar-color: #0d9488 #f1f5f9;
+        }
+
+        #destinations-container::-webkit-scrollbar {
+            height: 10px;
+        }
+
+        #destinations-container::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+
+        #destinations-container::-webkit-scrollbar-thumb {
+            background-color: #0d9488;
+            border-radius: 10px;
+            border: 2px solid #f1f5f9;
+        }
+
+        #destinations-container::-webkit-scrollbar-thumb:hover {
+            background-color: #0f766e;
+        }
+
+        /* --- MODIFIED: Custom Scrollbar for Sidebar --- */
+        #excluded-destinations-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #excluded-destinations-list::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        #excluded-destinations-list::-webkit-scrollbar-thumb {
+            background-color: #0d9488;
+            border-radius: 10px;
+        }
+
+        #excluded-destinations-list::-webkit-scrollbar-thumb:hover {
+            background-color: #0f766e;
+        }
+        /* ----------------------------------------------- */
+
+        /* Animation for AI Text */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+    </style>
 </head>
-<body>
-    home 
-    about Jharkhand
+<body class="bg-gray-50 text-gray-800 min-h-screen">
+    
+    <div class="w-full h-96 bg-gray-200 shadow-xl relative group overflow-hidden">
+        <iframe 
+            src="http://localhost:3004" 
+            class="w-full h-full border-none"
+            title="External Content">
+        </iframe>
+        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-4 py-2 rounded-lg shadow text-sm font-medium text-gray-600 z-10 border border-gray-200">
+            🌐 Displaying Localhost:3004
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-4xl font-extrabold text-teal-700 mb-8 border-b-4 border-teal-200 pb-2">
+            Explore Destinations
+        </h1>
+        <div id="destinations-container" class="flex overflow-x-scroll space-x-6 pb-10 snap-x snap-mandatory cursor-grab active:cursor-grabbing">
+            <p class="text-gray-500">Loading destinations...</p>
+        </div>
+    </div>
+
+    <div id="destination-detail-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-6xl h-[90vh] flex flex-col relative overflow-hidden">
+            <button id="close-destination-detail-modal" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-3xl z-10 p-2 bg-white rounded-full leading-none shadow-md">&times;</button>
+            
+            <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+                <div id="destination-content-container" class="flex-1 overflow-y-auto p-6 border-r border-gray-100">
+                    <div class="max-w-4xl">
+                        <h2 id="detail-title" class="text-4xl font-extrabold text-teal-700 mb-4"></h2>
+                        <img id="detail-primary-image" class="w-full h-96 object-cover rounded-lg shadow-lg mb-6 bg-gray-200" alt="Primary Image">
+                        
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-6 mb-6 shadow-sm">
+                            <h3 class="text-lg font-bold text-blue-800 mb-2 flex items-center gap-2">
+                                ✨ AI Insights <span class="text-xs bg-blue-200 text-blue-800 px-2 py-0.5 rounded-full uppercase tracking-wide">Gemini Powered</span>
+                            </h3>
+                            <div id="ai-description-container" class="text-gray-700 leading-relaxed italic"></div>
+                        </div>
+
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2">Description</h3>
+                        <p id="detail-description" class="text-gray-600 mb-6 leading-relaxed"></p>
+                        
+                        <h3 class="text-2xl font-bold text-gray-800 mb-4">Gallery</h3>
+                        <div id="detail-secondary-images" class="gallery-carousel flex overflow-x-auto space-x-4 pb-4"></div>
+                    </div>
+                </div>
+
+                <div class="w-full lg:w-80 bg-gray-50 p-4 flex flex-col h-full shadow-inner">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Explore Others</h3>
+                    <div id="excluded-destinations-list" class="flex-1 overflow-y-auto space-y-3 pr-2">
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const API_URL = 'http://localhost:3001'; 
+    let allDestinations = []; 
+
+    const destinationsContainer = document.getElementById('destinations-container');
+    const destinationDetailModal = document.getElementById('destination-detail-modal');
+    const closeDestinationDetailModalBtn = document.getElementById('close-destination-detail-modal');
+    const detailTitle = document.getElementById('detail-title');
+    const detailPrimaryImage = document.getElementById('detail-primary-image');
+    const detailDescription = document.getElementById('detail-description');
+    const aiDescriptionContainer = document.getElementById('ai-description-container'); 
+    const detailSecondaryImages = document.getElementById('detail-secondary-images');
+    const excludedDestinationsList = document.getElementById('excluded-destinations-list');
+
+    const fetchAiDetails = async (placeName) => {
+        aiDescriptionContainer.innerHTML = `<div class="flex items-center gap-2 text-blue-600 animate-pulse">Generating travel guide...</div>`;
+        try {
+            const response = await fetch(`${API_URL}/api/get-destination-details`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ placeName })
+            });
+            const data = await response.json();
+            aiDescriptionContainer.innerHTML = data.aiDescription ? `<p class="fade-in text-gray-800">${data.aiDescription}</p>` : "AI details currently unavailable.";
+        } catch (error) { aiDescriptionContainer.innerHTML = "Could not connect to AI service."; }
+    };
+
+    const openDestinationDetail = async (id) => {
+        detailTitle.textContent = "Loading...";
+        const destination = await fetchDestinationById(id);
+        if (!destination) return;
+        
+        detailTitle.textContent = destination.title;
+        detailPrimaryImage.src = `data:image/jpeg;base64,${destination.primaryImageBase64}`;
+        detailDescription.textContent = destination.fullDescription || destination.description;
+        aiDescriptionContainer.innerHTML = ''; 
+        fetchAiDetails(destination.title);
+        
+        detailSecondaryImages.innerHTML = ''; 
+        const secondaryImages = destination.secondaryImagesBase64 || [];
+        [{ base64: destination.primaryImageBase64 }, ...secondaryImages.map(b => ({ base64: b }))].forEach((item) => {
+            const img = document.createElement('img');
+            img.src = `data:image/jpeg;base64,${item.base64}`;
+            img.className = 'w-36 h-24 object-cover rounded-lg shadow-md cursor-pointer hover:scale-105 transition flex-shrink-0';
+            img.onclick = (e) => detailPrimaryImage.src = e.target.src;
+            detailSecondaryImages.appendChild(img);
+        });
+
+        excludedDestinationsList.innerHTML = ''; 
+        allDestinations.filter(d => d._id !== id).forEach(dest => {
+            const el = document.createElement('div');
+            el.className = 'flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm border border-gray-100 cursor-pointer hover:bg-teal-50 transition-all hover:shadow-md';
+            el.innerHTML = `
+                <img src="data:image/jpeg;base64,${dest.primaryImageBase64}" class="w-12 h-12 rounded object-cover">
+                <span class="font-semibold text-teal-800 text-xs leading-tight">${dest.title}</span>
+            `;
+            el.onclick = () => {
+                // Scroll main content back to top when changing destinations
+                document.getElementById('destination-content-container').scrollTop = 0;
+                openDestinationDetail(dest._id);
+            };
+            excludedDestinationsList.appendChild(el);
+        });
+
+        destinationDetailModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    };
+
+    const fetchDestinationById = async (id) => {
+        try {
+            const response = await fetch(`${API_URL}/api/destinations/${id}`);
+            return await response.json();
+        } catch(e) { return null; }
+    };
+
+    const fetchDestinations = async () => {
+        try {
+            const response = await fetch(`${API_URL}/api/destinations`);
+            const destinations = await response.json();
+            
+            if (!Array.isArray(destinations)) {
+                destinationsContainer.innerHTML = `<p class="text-red-500">Failed to load destinations.</p>`;
+                return;
+            }
+
+            allDestinations = destinations;
+            destinationsContainer.innerHTML = destinations.map(dest => `
+                <div class="destination-card bg-white rounded-lg shadow-lg hover:shadow-xl transition duration-300 overflow-hidden flex-shrink-0 w-80 snap-center cursor-pointer group" onclick="openDestinationDetail('${dest._id}')">
+                    <div class="relative overflow-hidden h-48">
+                        <img src="data:image/jpeg;base64,${dest.primaryImageBase64}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">${dest.title}</h3>
+                        <p class="text-gray-600 line-clamp-2 text-sm">${dest.description}</p>
+                        <button class="text-teal-600 font-bold text-sm mt-3 flex items-center gap-1">Read More &rarr;</button>
+                    </div>
+                </div>
+            `).join('');
+        } catch (e) { 
+            destinationsContainer.innerHTML = `<p class="text-red-500">Network error. Is the server running?</p>`;
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        closeDestinationDetailModalBtn.onclick = () => {
+            destinationDetailModal.classList.add('hidden');
+            document.body.style.overflow = '';
+        };
+        fetchDestinations();
+    });
+    </script>
 </body>
 </html>
