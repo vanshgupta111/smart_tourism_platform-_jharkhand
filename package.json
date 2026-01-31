@@ -1,20 +1,21 @@
 {
- "dependencies": {
-  "@google/generative-ai": "^0.24.1",
-  "bcryptjs": "^3.0.2",
-  "cors": "^2.8.5",
-  "dotenv": "^17.2.2",
-  "es": "^0.8.0",
-  "express": "^5.1.0",
-  "jsonwebtoken": "^9.0.2",
-  "jszip": "^3.10.1",
-  "mongodb": "^6.19.0",
-  "mongoose": "^8.18.1",
-  "multer": "^2.0.2",
-  "nodemailer": "^7.0.10",
-  "path": "^0.12.7",
-  "razorpay": "^2.9.6",
-  "three": "^0.180.0"
- },
- "type": "module"
+    "name": "jharkhand-chatbot",
+    "version": "1.0.0",
+    "description": "Jharkhand Eco-Tour Chatbot",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "@google/genai": "^1.30.0",
+        "react": "^19.0.0-rc",
+        "react-dom": "^19.0.0-rc"
+    },
+    "devDependencies": {
+        "@types/react": "^18.3.3",
+        "@types/react-dom": "^18.3.0",
+        "typescript": "^5.2.2",
+        "vite": "^5.2.0"
+    }
 }
